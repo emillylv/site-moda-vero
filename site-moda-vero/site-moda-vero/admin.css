@@ -1,0 +1,352 @@
+/* =========================================================================
+   PAINEL DA COLEÇÃO — estilos específicos do admin.html
+   (usa os tokens de cor/tipografia já definidos em styles.css)
+   ========================================================================= */
+
+.admin-body {
+  background: var(--papel-fundo);
+}
+
+.admin-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(248, 242, 231, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--linha);
+}
+.admin-header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-btn-pequeno {
+  padding: 9px 18px;
+  font-size: 0.78rem;
+}
+
+.admin-main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.admin-intro h1 {
+  font-size: clamp(1.8rem, 1.5rem + 1.2vw, 2.4rem);
+  margin-bottom: 14px;
+}
+.admin-intro p {
+  max-width: 70ch;
+  color: var(--tinta-suave);
+  font-size: 1rem;
+  margin-bottom: 18px;
+}
+.admin-intro code {
+  background: var(--papel);
+  border: 1px solid var(--linha);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.88em;
+}
+
+.admin-passos-rapidos {
+  max-width: 60ch;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--tinta-suave);
+  font-size: 0.95rem;
+}
+.admin-passos-rapidos li { padding-left: 4px; }
+
+.admin-campo-colecao {
+  background: var(--papel);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 420px;
+}
+.admin-campo-colecao label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  color: var(--terracota-escuro);
+}
+.admin-campo-colecao input {
+  font-family: var(--fonte-titulo);
+  font-size: 1.3rem;
+  border: none;
+  border-bottom: 1px solid var(--linha);
+  background: transparent;
+  padding: 6px 2px;
+  color: var(--tinta);
+}
+.admin-campo-colecao input:focus {
+  outline: none;
+  border-color: var(--terracota);
+}
+
+/* ---------- Layout do editor ---------- */
+.admin-editor {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.admin-coluna-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.admin-coluna-cabecalho h2 { font-size: 1.5rem; }
+
+.admin-coluna-preview {
+  position: sticky;
+  top: 96px;
+  background: var(--papel);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  padding: 24px;
+}
+.admin-coluna-preview h2 { font-size: 1.2rem; margin-bottom: 4px; }
+.admin-preview-legenda {
+  font-size: 0.84rem;
+  color: var(--tinta-suave);
+  margin-bottom: 18px;
+}
+.admin-preview-grade {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.admin-preview-grade .look-card {
+  opacity: 1;
+  transform: none;
+}
+.admin-preview-vazio {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--tinta-suave);
+  font-size: 0.9rem;
+  padding: 32px 0;
+}
+
+/* ---------- Lista de looks (cards editáveis) ---------- */
+.lista-looks {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.look-editor-card {
+  background: var(--papel);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 18px;
+}
+
+.look-editor-thumb {
+  width: 110px;
+  height: 150px;
+  border-radius: var(--raio);
+  overflow: hidden;
+  background: var(--papel-fundo);
+  border: 1px dashed var(--linha);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.look-editor-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.look-editor-thumb span {
+  font-size: 0.68rem;
+  color: var(--tinta-suave);
+  text-align: center;
+  padding: 0 6px;
+}
+.look-editor-thumb input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.look-editor-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.look-editor-campos .campo-largo { grid-column: 1 / -1; }
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.campo label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: var(--terracota-escuro);
+}
+.campo input,
+.campo select {
+  font-family: var(--fonte-corpo);
+  font-size: 0.92rem;
+  padding: 9px 10px;
+  border: 1px solid var(--linha);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--tinta);
+}
+.campo input:focus,
+.campo select:focus {
+  outline: none;
+  border-color: var(--terracota);
+}
+
+.look-editor-acoes {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  border-top: 1px solid var(--linha);
+  padding-top: 12px;
+}
+.look-editor-mover { display: flex; gap: 6px; }
+.botao-icone {
+  background: transparent;
+  border: 1px solid var(--linha);
+  border-radius: 3px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--tinta);
+  transition: background 200ms ease, color 200ms ease;
+}
+.botao-icone:hover { background: var(--tinta); color: var(--papel); }
+.botao-icone:disabled { opacity: 0.3; cursor: not-allowed; }
+.botao-icone:disabled:hover { background: transparent; color: var(--tinta); }
+
+.botao-remover {
+  background: transparent;
+  border: none;
+  color: var(--terracota-escuro);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.botao-remover:hover { text-decoration: underline; }
+
+.lista-vazia {
+  text-align: center;
+  padding: 48px 24px;
+  border: 1px dashed var(--linha);
+  border-radius: var(--raio);
+  color: var(--tinta-suave);
+}
+
+/* ---------- Exportar ---------- */
+.admin-exportar {
+  background: var(--tinta);
+  color: var(--papel);
+  border-radius: var(--raio);
+  padding: 36px clamp(20px, 4vw, 44px);
+}
+.admin-exportar h2 { color: var(--papel); margin-bottom: 12px; }
+.admin-exportar p {
+  color: rgba(248, 242, 231, 0.72);
+  max-width: 70ch;
+  margin-bottom: 22px;
+  font-size: 0.96rem;
+}
+.admin-exportar code {
+  background: rgba(248, 242, 231, 0.12);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.admin-exportar-acoes {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.admin-exportar .btn-secundario {
+  color: var(--papel);
+  border-color: var(--linha-clara);
+}
+.admin-exportar .btn-secundario:hover:not(:disabled) {
+  background: var(--papel);
+  color: var(--tinta);
+}
+.admin-exportar .btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.admin-saida-codigo {
+  width: 100%;
+  background: #0F0D0A;
+  color: #E8DCC4;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  border: 1px solid rgba(248, 242, 231, 0.18);
+  border-radius: var(--raio);
+  padding: 18px;
+  resize: vertical;
+}
+
+.admin-mensagem-status {
+  margin-top: 12px;
+  font-size: 0.86rem;
+  color: var(--camel);
+  min-height: 1.2em;
+}
+
+.admin-footer {
+  text-align: center;
+  padding: 28px;
+  color: var(--tinta-suave);
+  font-size: 0.78rem;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 980px) {
+  .admin-editor { grid-template-columns: 1fr; }
+  .admin-coluna-preview { position: static; }
+}
+
+@media (max-width: 560px) {
+  .look-editor-card { grid-template-columns: 1fr; }
+  .look-editor-thumb { width: 100%; height: 200px; }
+  .look-editor-campos { grid-template-columns: 1fr; }
+}
