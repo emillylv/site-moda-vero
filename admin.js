@@ -28,7 +28,39 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btn-gerar").addEventListener("click", gerarArquivo);
   document.getElementById("btn-copiar").addEventListener("click", copiarConteudo);
   document.getElementById("btn-baixar").addEventListener("click", baixarArquivo);
+  document.getElementById("btn-publicar").addEventListener("click", publicarDireto);
+
+  const lista = document.getElementById("lista-looks");
+  lista.addEventListener("input", tratarEdicaoLista);
+  lista.addEventListener("change", tratarEdicaoLista);
+  lista.addEventListener("click", tratarCliqueLista);
 });
+
+function tratarEdicaoLista(evento) {
+  const alvo = evento.target;
+  const card = alvo.closest(".look-editor-card");
+  if (!card) return;
+  const id = Number(card.dataset.id);
+
+  if (alvo.matches('input[type="file"]')) {
+    préVisualizarArquivo(evento, id);
+    return;
+  }
+  if (alvo.dataset.campo) {
+    atualizarCampo(id, alvo.dataset.campo, alvo.value);
+    if (alvo.dataset.campo === "imagem") atualizarThumb(id);
+  }
+}
+
+function tratarCliqueLista(evento) {
+  const botao = evento.target.closest("button[data-acao]");
+  if (!botao) return;
+  const card = botao.closest(".look-editor-card");
+  const id = Number(card.dataset.id);
+  if (botao.dataset.acao === "remover") removerLook(id);
+  if (botao.dataset.acao === "subir") moverLook(id, -1);
+  if (botao.dataset.acao === "descer") moverLook(id, 1);
+}
 
 /* ---------- Carregamento inicial ---------- */
 function carregarColecaoAtual() {
@@ -102,12 +134,12 @@ function renderizarLista() {
         <div class="look-editor-card" data-id="${item.id}">
           <div class="look-editor-thumb">
             ${temImagem
-          ? `<img src="${escaparAtributo(item.imagem)}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">`
+          ? `<img src="${escaparAtributo(item.imagem)}" alt="">`
           : ""
         }
-            <span style="${temImagem ? "display:none" : "display:flex"}">Prévia da foto principal</span>
+            <span ${temImagem ? "hidden" : ""}>Prévia da foto principal</span>
             <input type="file" accept="image/*" title="Escolher foto para pré-visualizar (não envia o arquivo, apenas mostra aqui)"
-              onchange="préVisualizarArquivo(event, ${item.id})">
+              data-acao="preview-arquivo">
           </div>
 
           <div class="look-editor-campos">
@@ -115,26 +147,26 @@ function renderizarLista() {
               <label for="titulo-${item.id}">Título do look</label>
               <input type="text" id="titulo-${item.id}" value="${escaparAtributo(item.titulo)}"
                 placeholder="Ex.: Alfaiataria leve"
-                oninput="atualizarCampo(${item.id}, 'titulo', this.value)">
+                data-campo="titulo">
             </div>
 
             <div class="campo">
               <label for="imagem-${item.id}">Arquivo da foto principal</label>
               <input type="text" id="imagem-${item.id}" value="${escaparAtributo(item.imagem)}"
                 placeholder="imgs/0001.jpg"
-                oninput="atualizarCampo(${item.id}, 'imagem', this.value); atualizarThumb(${item.id})">
+                data-campo="imagem">
             </div>
 
             <div class="campo">
               <label for="hover-${item.id}">Foto ao passar o mouse (opcional)</label>
               <input type="text" id="hover-${item.id}" value="${escaparAtributo(item.imagemHover)}"
                 placeholder="imgs/0001-alt.jpg"
-                oninput="atualizarCampo(${item.id}, 'imagemHover', this.value)">
+                data-campo="imagemHover">
             </div>
 
             <div class="campo campo-largo">
               <label for="etiqueta-${item.id}">Etiqueta</label>
-              <select id="etiqueta-${item.id}" onchange="atualizarCampo(${item.id}, 'etiqueta', this.value)">
+              <select id="etiqueta-${item.id}" data-campo="etiqueta">
                 ${["Tendência", "Novo", "Mais pedido", "Edição limitada", "Sem etiqueta"]
           .map((opcao) => {
             const valor = opcao === "Sem etiqueta" ? "" : opcao;
@@ -148,17 +180,25 @@ function renderizarLista() {
             <div class="look-editor-acoes">
               <div class="look-editor-mover">
                 <button type="button" class="botao-icone" title="Mover para cima"
-                  onclick="moverLook(${item.id}, -1)" ${indice === 0 ? "disabled" : ""}>↑</button>
+                  data-acao="subir" ${indice === 0 ? "disabled" : ""}>↑</button>
                 <button type="button" class="botao-icone" title="Mover para baixo"
-                  onclick="moverLook(${item.id}, 1)" ${indice === estadoColecao.itens.length - 1 ? "disabled" : ""}>↓</button>
+                  data-acao="descer" ${indice === estadoColecao.itens.length - 1 ? "disabled" : ""}>↓</button>
               </div>
-              <button type="button" class="botao-remover" onclick="removerLook(${item.id})">Remover look</button>
+              <button type="button" class="botao-remover" data-acao="remover">Remover look</button>
             </div>
           </div>
         </div>
       `;
     })
     .join("");
+
+  lista.querySelectorAll(".look-editor-thumb img").forEach((img) => {
+    img.addEventListener("error", () => {
+      img.hidden = true;
+      const span = img.nextElementSibling;
+      if (span) span.hidden = false;
+    });
+  });
 }
 
 function atualizarThumb(id) {
@@ -173,15 +213,15 @@ function atualizarThumb(id) {
   if (item.imagem && item.imagem.trim() !== "") {
     if (img) {
       img.src = item.imagem;
-      img.style.display = "block";
+      img.hidden = false;
     } else {
       const novaImg = document.createElement("img");
       novaImg.src = item.imagem;
       novaImg.alt = "";
-      novaImg.onerror = function () { this.style.display = "none"; span.style.display = "flex"; };
+      novaImg.onerror = function () { this.hidden = true; span.hidden = false; };
       thumb.insertBefore(novaImg, thumb.firstChild);
     }
-    if (span) span.style.display = "none";
+    if (span) span.hidden = true;
   }
   renderizarPreview();
 }
@@ -199,9 +239,9 @@ function préVisualizarArquivo(evento, id) {
     thumb.insertBefore(img, thumb.firstChild);
   }
   img.src = url;
-  img.style.display = "block";
+  img.hidden = false;
   const span = thumb.querySelector("span");
-  if (span) span.style.display = "none";
+  if (span) span.hidden = true;
   // Nota: isto é só uma pré-visualização local. Lembre-se de colocar o
   // arquivo de verdade dentro da pasta /imgs e digitar o nome do arquivo
   // no campo "Arquivo da foto principal".
@@ -224,8 +264,8 @@ function renderizarPreview() {
           ${item.etiqueta ? `<span class="look-tag">${escaparHTML(item.etiqueta)}</span>` : ""}
           <div class="look-card-imagem">
             ${item.imagem
-          ? `<img class="imagem-base" src="${escaparAtributo(item.imagem)}" alt="" onerror="this.style.opacity=0">`
-          : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--papel-fundo);color:var(--tinta-suave);font-size:0.78rem;text-align:center;padding:12px;">Sem foto definida</div>`
+          ? `<img class="imagem-base" src="${escaparAtributo(item.imagem)}" alt="">`
+          : `<div class="admin-preview-sem-foto">Sem foto definida</div>`
         }
           </div>
           <div class="look-card-legenda">
@@ -236,10 +276,19 @@ function renderizarPreview() {
       `;
     })
     .join("");
+
+  preview.querySelectorAll("img").forEach((img) => {
+    img.addEventListener("error", () => { img.hidden = true; });
+  });
 }
 
 /* ---------- Geração do arquivo final ---------- */
 function gerarArquivo() {
+  const erro = validarColecaoLocal();
+  if (erro) {
+    mostrarStatus(erro);
+    return;
+  }
   const conteudo = montarConteudoArquivo();
   const saida = document.getElementById("saida-codigo");
   saida.value = conteudo;
@@ -280,8 +329,7 @@ ${blocoItens}
 }
 
 function formatarString(texto) {
-  const seguro = (texto || "").replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-  return `"${seguro}"`;
+  return JSON.stringify(texto || "").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
 }
 
 /* ---------- Ações de copiar / baixar ---------- */
@@ -316,9 +364,89 @@ function baixarArquivo() {
   mostrarStatus("Download iniciado. Substitua o arquivo trends-data.js na pasta do site por este.");
 }
 
+/* ---------- Publicação direta (via servidor) ---------- */
+async function publicarDireto() {
+  const campoToken = document.getElementById("input-token-publicar");
+  const token = campoToken.value.trim();
+
+  if (!token) {
+    mostrarStatus("Informe a chave de acesso antes de publicar.");
+    campoToken.focus();
+    return;
+  }
+  if (estadoColecao.itens.length === 0) {
+    mostrarStatus("Adicione pelo menos um look antes de publicar.");
+    return;
+  }
+  const erroValidacao = validarColecaoLocal();
+  if (erroValidacao) {
+    mostrarStatus(erroValidacao);
+    return;
+  }
+
+  const botao = document.getElementById("btn-publicar");
+  botao.disabled = true;
+  mostrarStatus("Publicando...");
+
+  try {
+    const resposta = await fetch("/api/catalog/update", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        colecao: estadoColecao.colecao,
+        itens: estadoColecao.itens.map((item) => ({
+          imagem: item.imagem,
+          imagemHover: item.imagemHover,
+          titulo: item.titulo,
+          etiqueta: item.etiqueta,
+        })),
+      }),
+    });
+
+    if (resposta.status === 401) {
+      mostrarStatus("Chave de acesso incorreta.");
+      return;
+    }
+    if (!resposta.ok) {
+      const corpo = await resposta.json().catch(() => ({}));
+      mostrarStatus(corpo.mensagem || "Não foi possível publicar. Tente novamente.");
+      return;
+    }
+
+    mostrarStatus("Publicado! O site vai atualizar em alguns minutos.");
+    campoToken.value = "";
+  } catch (erro) {
+    mostrarStatus("Erro de conexão. Verifique sua internet e tente novamente.");
+  } finally {
+    botao.disabled = false;
+  }
+}
+
 function mostrarStatus(mensagem) {
   const elemento = document.getElementById("mensagem-status");
   elemento.textContent = mensagem;
+}
+
+function validarColecaoLocal() {
+  if (estadoColecao.colecao.length > 200) return "O nome da coleção deve ter no máximo 200 caracteres.";
+  if (estadoColecao.itens.length > 200) return "A coleção deve ter no máximo 200 looks.";
+  for (const item of estadoColecao.itens) {
+    if (!caminhoImagemSeguro(item.imagem)) {
+      return "Cada foto principal deve usar um arquivo seguro dentro de imgs/ (ex.: imgs/0001.jpg).";
+    }
+    if (item.imagemHover && !caminhoImagemSeguro(item.imagemHover)) {
+      return "Cada foto de hover deve usar um arquivo seguro dentro de imgs/.";
+    }
+    if ((item.titulo || "").length > 200) return "Os títulos devem ter no máximo 200 caracteres.";
+  }
+  return null;
+}
+
+function caminhoImagemSeguro(caminho) {
+  return typeof caminho === "string" && /^imgs\/[A-Za-z0-9][A-Za-z0-9._-]*\.(?:avif|gif|jpe?g|png|webp)$/i.test(caminho);
 }
 
 /* ---------- Utilitários ---------- */
@@ -329,5 +457,5 @@ function escaparHTML(texto) {
 }
 
 function escaparAtributo(texto) {
-  return (texto || "").replace(/"/g, "&quot;");
+  return escaparHTML(texto).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }

@@ -4,6 +4,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Painel da Coleção · Verônica Chaves</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/png" href="favicon.png">
@@ -70,19 +73,28 @@
     </section>
 
     <section class="admin-exportar">
-      <h2>Gerar arquivo da coleção</h2>
-      <p>Quando a coleção estiver pronta, gere o arquivo abaixo. Você pode copiar o conteúdo ou baixar
-        diretamente o arquivo <code>trends-data.js</code> já pronto para substituir o antigo.</p>
+      <h2>Publicar a coleção</h2>
+      <p>Quando a coleção estiver pronta, clique em <strong>“Publicar direto no site”</strong> e informe sua
+        chave de acesso. O site é atualizado automaticamente em alguns minutos, sem precisar mexer em
+        arquivos.</p>
 
       <div class="admin-exportar-acoes">
-        <button id="btn-gerar" class="btn btn-primario" type="button">Gerar arquivo</button>
-        <button id="btn-copiar" class="btn btn-secundario" type="button" disabled>Copiar conteúdo</button>
-        <button id="btn-baixar" class="btn btn-secundario" type="button" disabled>Baixar trends-data.js</button>
+        <input type="password" id="input-token-publicar" class="admin-input-token"
+          placeholder="Chave de acesso" autocomplete="off" minlength="32" spellcheck="false">
+        <button id="btn-publicar" class="btn btn-primario" type="button">Publicar direto no site</button>
       </div>
-
-      <textarea id="saida-codigo" class="admin-saida-codigo" readonly rows="14"
-        placeholder="O conteúdo gerado vai aparecer aqui depois que você clicar em “Gerar arquivo”."></textarea>
       <p id="mensagem-status" class="admin-mensagem-status" role="status" aria-live="polite"></p>
+
+      <details class="admin-exportar-alternativa">
+        <summary>Prefere gerar o arquivo manualmente?</summary>
+        <div class="admin-exportar-acoes">
+          <button id="btn-gerar" class="btn btn-secundario" type="button">Gerar arquivo</button>
+          <button id="btn-copiar" class="btn btn-secundario" type="button" disabled>Copiar conteúdo</button>
+          <button id="btn-baixar" class="btn btn-secundario" type="button" disabled>Baixar trends-data.js</button>
+        </div>
+        <textarea id="saida-codigo" class="admin-saida-codigo" readonly rows="14"
+          placeholder="O conteúdo gerado vai aparecer aqui depois que você clicar em “Gerar arquivo”."></textarea>
+      </details>
     </section>
 
   </main>

@@ -145,6 +145,19 @@
   padding: 32px 0;
 }
 
+.admin-preview-sem-foto {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--papel-fundo);
+  color: var(--tinta-suave);
+  font-size: 0.78rem;
+  text-align: center;
+  padding: 12px;
+}
+
 /* ---------- Lista de looks (cards editáveis) ---------- */
 .lista-looks {
   display: flex;
@@ -311,6 +324,30 @@
   cursor: not-allowed;
   transform: none !important;
 }
+
+.admin-input-token {
+  background: rgba(248, 242, 231, 0.08);
+  border: 1px solid var(--linha-clara);
+  color: var(--papel);
+  border-radius: var(--raio-pequeno, 6px);
+  padding: 0 16px;
+  font-size: 0.95rem;
+  min-width: 220px;
+}
+.admin-input-token::placeholder { color: rgba(248, 242, 231, 0.5); }
+
+.admin-exportar-alternativa {
+  margin-top: 24px;
+  border-top: 1px solid var(--linha-clara);
+  padding-top: 20px;
+}
+.admin-exportar-alternativa summary {
+  cursor: pointer;
+  color: rgba(248, 242, 231, 0.72);
+  font-size: 0.9rem;
+  margin-bottom: 14px;
+}
+.admin-exportar-alternativa .admin-exportar-acoes { margin-top: 14px; }
 
 .admin-saida-codigo {
   width: 100%;

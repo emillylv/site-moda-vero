@@ -79,9 +79,10 @@ function renderizarTendencias() {
   const itens = colecaoTendencias.itens || [];
 
   grade.innerHTML = itens
+    .filter((item) => item && caminhoImagemSeguro(item.imagem))
     .map((item, indice) => {
       const numero = String(indice + 1).padStart(2, "0");
-      const temHover = item.imagemHover && item.imagemHover !== item.imagem;
+      const temHover = caminhoImagemSeguro(item.imagemHover) && item.imagemHover !== item.imagem;
 
       return `
         <article class="look-card">
@@ -118,4 +119,8 @@ function escaparHTML(texto) {
   const div = document.createElement("div");
   div.textContent = texto;
   return div.innerHTML;
+}
+
+function caminhoImagemSeguro(caminho) {
+  return typeof caminho === "string" && /^imgs\/[A-Za-z0-9][A-Za-z0-9._-]*\.(?:avif|gif|jpe?g|png|webp)$/i.test(caminho);
 }
