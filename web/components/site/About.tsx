@@ -3,13 +3,13 @@ import { LINKS } from "@/lib/links";
 export function About() {
   return (
     <section className="section secao-sobre" id="title-sobre">
-      <h2>Sobre</h2>
+      <h2 className="reveal">Sobre</h2>
       <div className="sobre-conteudo">
-        <div className="sobre-foto">
+        <div className="sobre-foto reveal reveal--left">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/imgs/veronica.jpg" alt="Verônica Chaves, consultora de moda" />
         </div>
-        <div className="sobre-texto">
+        <div className="sobre-texto reveal reveal--right">
           <p className="eyebrow">Consultora de Moda · Belo Horizonte</p>
           <p className="sobre-nome">Verônica Chaves</p>
           <p>

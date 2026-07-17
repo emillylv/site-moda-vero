@@ -3,6 +3,15 @@
    Adaptados do styles.css original para os tokens do design system.
    ========================================================================= */
 
+/* Âncoras param abaixo do cabeçalho fixo ao navegar pelos links */
+#section-tendencias,
+#como-funciona,
+#marcas,
+#title-sobre,
+#contato {
+  scroll-margin-top: 88px;
+}
+
 /* ---------- Botões (.btn) ---------- */
 .btn {
   display: inline-flex;

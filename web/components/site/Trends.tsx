@@ -32,7 +32,7 @@ export function Trends({ colecao }: { colecao: Colecao }) {
 
   return (
     <section className="section secao-tendencias" id="section-tendencias">
-      <div className="cabecalho-secao">
+      <div className="cabecalho-secao reveal">
         <h2>Tendências</h2>
         <p className="subtitulo-colecao">
           Coleção <span>{colecao.colecao || "atual"}</span>
@@ -68,7 +68,7 @@ export function Trends({ colecao }: { colecao: Colecao }) {
         })}
       </div>
 
-      <p className="link-colecao">
+      <p className="link-colecao reveal">
         Quer ver a coleção completa?{" "}
         <a href={LINKS.whatsappColecao} target="_blank" rel="noopener">
           fale pelo WhatsApp

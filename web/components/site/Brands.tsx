@@ -14,7 +14,7 @@ export function Brands() {
   // Renderiza a lista duas vezes para a rolagem contínua (a 2ª cópia é decorativa).
   return (
     <section className="section secao-marcas" id="marcas">
-      <h2>Principais marcas</h2>
+      <h2 className="reveal">Principais marcas</h2>
       <div className="carrossel-marcas">
         <div className="marcas-imgs">
           {MARCAS.map((m) => (

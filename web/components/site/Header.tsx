@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LINKS } from "@/lib/links";
 
 const NAV = [
@@ -12,9 +12,18 @@ const NAV = [
 
 export function Header() {
   const [aberto, setAberto] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Sombra/compactação sutil do cabeçalho ao rolar a página.
+  useEffect(() => {
+    const aoRolar = () => setScrolled(window.scrollY > 12);
+    aoRolar();
+    window.addEventListener("scroll", aoRolar, { passive: true });
+    return () => window.removeEventListener("scroll", aoRolar);
+  }, []);
 
   return (
-    <header className="site-header">
+    <header className={`site-header${scrolled ? " scrolled" : ""}`}>
       <div className="header-inner">
         <a href="#topo" className="logo" onClick={() => setAberto(false)}>
           <span className="logo-nome">Verônica Chaves</span>

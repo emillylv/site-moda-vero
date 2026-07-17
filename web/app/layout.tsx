@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
 import "./globals.css";
 import "./sections.css";
+import "./animations.css";
 import "../components/ds/ds.css";
 
 // Fontes do design system Moda BH Vero — auto-hospedadas pelo next/font

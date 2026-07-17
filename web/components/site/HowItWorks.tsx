@@ -22,10 +22,10 @@ const PASSOS = [
 export function HowItWorks() {
   return (
     <section className="section secao-como-funciona" id="como-funciona">
-      <h2>Como funciona</h2>
-      <div className="passos">
+      <h2 className="reveal">Como funciona</h2>
+      <div className="passos stagger">
         {PASSOS.map((passo) => (
-          <div className="passo" key={passo.numero}>
+          <div className="passo reveal" key={passo.numero}>
             <span className="passo-numero">{passo.numero}</span>
             <h3>{passo.titulo}</h3>
             <p>{passo.texto}</p>

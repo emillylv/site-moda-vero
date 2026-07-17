@@ -58,6 +58,19 @@ Duas formas, ambas alterando `lib/trends.ts`:
    `POST /api/catalog/update`; a API valida, gera o novo `lib/trends.ts` e o
    **commita no GitHub**, disparando um novo deploy.
 
+## Animações
+
+Movimento discreto e editorial, alinhado ao design system (fades, deslizes
+curtos e escalas sutis, 300–800ms, ease-out):
+
+- **Scroll-reveal** com stagger (`app/animations.css` + `components/site/ScrollReveal.tsx`):
+  seções aparecem ao entrar na viewport. As classes `.reveal` / `.reveal--left`
+  / `.reveal--right` / `.stagger` marcam os alvos.
+- **Hero** com entrada encadeada no carregamento e leve zoom-out da imagem.
+- **Header** ganha sombra e compacta ao rolar.
+- Progressive enhancement: os estados ocultos só valem com JS ativo
+  (`html.reveal-enabled`); tudo respeita `prefers-reduced-motion`.
+
 ## Variáveis de ambiente
 
 Veja `.env.example`. Para o painel/API funcionarem em produção são necessárias

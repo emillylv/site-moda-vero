@@ -1,0 +1,204 @@
+/* =========================================================================
+   MODA BH VERO — sistema de animações
+   Movimento discreto e editorial (alinhado ao design system):
+   fades suaves, deslizes curtos, escalas sutis. 300–800ms, ease-out.
+   Progressive enhancement: os estados ocultos só valem quando o JS ativa
+   `.reveal-enabled` no <html>; sem JS, tudo aparece normalmente.
+   ========================================================================= */
+
+:root {
+  --ease-suave: cubic-bezier(0.22, 1, 0.36, 1);
+  --reveal-dist: 26px;
+  --reveal-dur: 720ms;
+  --stagger: 90ms;
+}
+
+/* ---------- Scroll reveal ---------- */
+.reveal-enabled .reveal {
+  opacity: 0;
+  transform: translateY(var(--reveal-dist));
+  transition: opacity var(--reveal-dur) var(--ease-suave),
+    transform var(--reveal-dur) var(--ease-suave);
+  transition-delay: var(--rd, 0ms);
+  will-change: opacity, transform;
+}
+.reveal-enabled .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Variações de direção */
+.reveal-enabled .reveal--left {
+  transform: translateX(calc(-1 * var(--reveal-dist)));
+}
+.reveal-enabled .reveal--right {
+  transform: translateX(var(--reveal-dist));
+}
+.reveal-enabled .reveal--scale {
+  transform: scale(0.96);
+}
+.reveal-enabled .reveal--left.is-visible,
+.reveal-enabled .reveal--right.is-visible,
+.reveal-enabled .reveal--scale.is-visible {
+  transform: none;
+}
+
+/* Stagger para grupos (delays por posição) */
+.reveal-enabled .stagger > *:nth-child(1) { --rd: 0ms; }
+.reveal-enabled .stagger > *:nth-child(2) { --rd: calc(var(--stagger) * 1); }
+.reveal-enabled .stagger > *:nth-child(3) { --rd: calc(var(--stagger) * 2); }
+.reveal-enabled .stagger > *:nth-child(4) { --rd: calc(var(--stagger) * 3); }
+.reveal-enabled .stagger > *:nth-child(5) { --rd: calc(var(--stagger) * 4); }
+.reveal-enabled .stagger > *:nth-child(6) { --rd: calc(var(--stagger) * 5); }
+.reveal-enabled .stagger > *:nth-child(7) { --rd: calc(var(--stagger) * 6); }
+.reveal-enabled .stagger > *:nth-child(8) { --rd: calc(var(--stagger) * 7); }
+.reveal-enabled .stagger > *:nth-child(n + 9) { --rd: calc(var(--stagger) * 8); }
+
+/* Evita scroll horizontal durante os reveals com deslocamento lateral */
+.secao-sobre {
+  overflow: hidden;
+}
+
+/* ---------- Entrada do hero (no load, acima da dobra) ---------- */
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes hero-imagem-in {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.hero-texto > * {
+  opacity: 0;
+  animation: hero-in 820ms var(--ease-suave) forwards;
+}
+.hero-texto > *:nth-child(1) { animation-delay: 120ms; }
+.hero-texto > *:nth-child(2) { animation-delay: 210ms; }
+.hero-texto > *:nth-child(3) { animation-delay: 300ms; }
+.hero-texto > *:nth-child(4) { animation-delay: 390ms; }
+.hero-texto > *:nth-child(5) { animation-delay: 480ms; }
+
+.hero-imagem img {
+  animation: hero-imagem-in 1100ms var(--ease-suave) both;
+}
+
+/* ---------- Look cards: fade-up com stagger (revela via .em-vista) ---------- */
+.look-card {
+  transition: opacity var(--reveal-dur) var(--ease-suave),
+    transform var(--reveal-dur) var(--ease-suave),
+    box-shadow 420ms var(--ease-suave);
+  transition-delay: var(--rd, 0ms);
+}
+.grade-tendencias .look-card:nth-child(1) { --rd: 0ms; }
+.grade-tendencias .look-card:nth-child(2) { --rd: 80ms; }
+.grade-tendencias .look-card:nth-child(3) { --rd: 160ms; }
+.grade-tendencias .look-card:nth-child(4) { --rd: 240ms; }
+.grade-tendencias .look-card:nth-child(5) { --rd: 320ms; }
+.grade-tendencias .look-card:nth-child(6) { --rd: 400ms; }
+.grade-tendencias .look-card:nth-child(n + 7) { --rd: 480ms; }
+
+/* Elevação suave ao passar o mouse no card */
+.look-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+.look-card-imagem img {
+  transition: transform 900ms var(--ease-suave), opacity 500ms var(--ease-suave);
+}
+
+/* Crossfade mais suave entre foto base e hover */
+.look-card .imagem-hover {
+  transition: opacity 600ms var(--ease-suave);
+}
+.look-card .imagem-base {
+  transition: opacity 600ms var(--ease-suave);
+}
+
+/* ---------- Header reativo ao scroll ---------- */
+.site-header {
+  transition: box-shadow 400ms var(--ease-suave),
+    background-color 400ms var(--ease-suave),
+    padding 300ms var(--ease-suave);
+}
+.site-header.scrolled {
+  box-shadow: var(--shadow-sm);
+  background: rgba(248, 242, 231, 0.98);
+}
+.site-header.scrolled .header-inner {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.header-inner {
+  transition: padding 320ms var(--ease-suave);
+}
+
+/* ---------- Botão flutuante do WhatsApp: entrada + brilho sutil ---------- */
+@keyframes fab-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.whatsapp-popup {
+  animation: fab-in 520ms var(--ease-suave) 900ms both;
+}
+
+/* ---------- Underline animado dos links de navegação (refino) ---------- */
+.nav-principal ul a::after {
+  transition: transform 420ms var(--ease-suave);
+}
+
+/* ---------- Botões: micro-interação mais macia ---------- */
+.btn {
+  transition: transform 380ms var(--ease-suave), background 320ms var(--ease-suave),
+    color 320ms var(--ease-suave), border-color 320ms var(--ease-suave),
+    box-shadow 320ms var(--ease-suave);
+}
+.btn-primario:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* ---------- Marcas: aparição suave ---------- */
+img.marca {
+  transition: filter 500ms var(--ease-suave), transform 500ms var(--ease-suave);
+}
+img.marca:hover {
+  transform: scale(1.04);
+}
+
+/* =========================================================================
+   Acessibilidade — desativa movimento para quem prefere menos animação
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-enabled .reveal,
+  .reveal-enabled .reveal--left,
+  .reveal-enabled .reveal--right,
+  .reveal-enabled .reveal--scale {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .hero-texto > *,
+  .hero-imagem img,
+  .whatsapp-popup {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

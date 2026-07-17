@@ -7,6 +7,7 @@ import { About } from "@/components/site/About";
 import { Contact } from "@/components/site/Contact";
 import { Footer } from "@/components/site/Footer";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
+import { ScrollReveal } from "@/components/site/ScrollReveal";
 import { colecaoTendencias } from "@/lib/trends";
 
 export default function Home() {
@@ -29,6 +30,7 @@ export default function Home() {
 
       <Footer />
       <WhatsAppButton />
+      <ScrollReveal />
     </>
   );
 }
