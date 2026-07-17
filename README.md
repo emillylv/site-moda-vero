@@ -77,6 +77,16 @@ No Railway (Settings → Variables) ou em um `.env` local (veja
 - `TRUST_PROXY=1` — use quando a aplicação estiver atrás de exatamente um
   proxy reverso confiável (como no Railway), para o limitador usar o IP real.
 
+## Envio de imagens (`/api/images/upload`)
+
+Além do catálogo, o servidor aceita **uma imagem por requisição**, também sem
+gravar em disco: valida os bytes (por *magic number*, não pela extensão) e faz
+commit do arquivo em `imgs/` no GitHub. Aceita JPEG, PNG, WebP, GIF e AVIF, com
+limite de 5 MB por imagem.
+
+Documentação completa — corpo da requisição, respostas, camadas de segurança e
+exemplos em `curl`/JavaScript: **[`docs/api-imagens.md`](docs/api-imagens.md)**.
+
 ### Rodando localmente
 ```
 npm install

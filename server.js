@@ -16,6 +16,8 @@ const GITHUB_REPO = process.env.GITHUB_REPO; // formato: "usuario/repositorio"
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_FILE_PATH = process.env.GITHUB_FILE_PATH || "trends-data.js";
 const TEMPO_LIMITE_GITHUB_MS = 10_000;
+// Tamanho máximo (em bytes) de cada imagem já decodificada de base64.
+const MAX_IMAGEM_BYTES = 5 * 1024 * 1024;
 
 if (!CATALOG_TOKEN || !GITHUB_TOKEN || !GITHUB_REPO) {
   console.error(
@@ -82,6 +84,8 @@ app.use((req, res, next) => {
   next();
 });
 const lerJson = express.json({ limit: "512kb" });
+// Limite maior só para imagens: base64 de 5 MB ≈ 6,8 MB + folga do JSON.
+const lerJsonImagem = express.json({ limit: "8mb" });
 
 // Limita tentativas de publicação para dificultar força bruta no token
 const limiteAtualizacao = rateLimit({
@@ -145,6 +149,55 @@ function caminhoImagemValido(caminho) {
   return /^imgs\/[A-Za-z0-9][A-Za-z0-9._-]*\.(?:avif|gif|jpe?g|png|webp)$/i.test(caminho);
 }
 
+// Valida apenas o nome do arquivo (sem pasta). Sem "/", sem ".." e com
+// extensão de imagem conhecida — vira "imgs/<nome>" no servidor.
+function nomeImagemValido(nome) {
+  return (
+    typeof nome === "string" &&
+    !nome.includes("..") &&
+    /^[A-Za-z0-9][A-Za-z0-9._-]*\.(?:avif|gif|jpe?g|png|webp)$/i.test(nome)
+  );
+}
+
+// Detecta o formato REAL pelos primeiros bytes (magic numbers), sem confiar
+// na extensão nem no Content-Type informado pelo cliente. Retorna a extensão
+// canônica ("jpeg", "png", "webp", "gif", "avif") ou null se não for imagem.
+// SVG é deliberadamente rejeitado (pode carregar script) por não ter magic
+// number binário e não constar nas extensões permitidas.
+function detectarFormatoImagem(buffer) {
+  if (!Buffer.isBuffer(buffer) || buffer.length < 12) return null;
+
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (
+    buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47 &&
+    buffer[4] === 0x0d && buffer[5] === 0x0a && buffer[6] === 0x1a && buffer[7] === 0x0a
+  ) {
+    return "png";
+  }
+  // JPEG: FF D8 FF
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return "jpeg";
+  // GIF: "GIF87a" ou "GIF89a"
+  if (
+    buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x38 &&
+    (buffer[4] === 0x37 || buffer[4] === 0x39) && buffer[5] === 0x61
+  ) {
+    return "gif";
+  }
+  // WEBP: "RIFF"....(tamanho)...."WEBP"
+  if (
+    buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
+    buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50
+  ) {
+    return "webp";
+  }
+  // AVIF: caixa ISO-BMFF "ftyp" (offset 4) com marca "avif"/"avis"
+  if (buffer[4] === 0x66 && buffer[5] === 0x74 && buffer[6] === 0x79 && buffer[7] === 0x70) {
+    const trecho = buffer.toString("latin1", 8, Math.min(buffer.length, 64));
+    if (trecho.includes("avif") || trecho.includes("avis")) return "avif";
+  }
+  return null;
+}
+
 /* ---------- Geração do trends-data.js (mesma lógica do admin.js) ---------- */
 function formatarString(texto) {
   return JSON.stringify(texto || "").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
@@ -182,43 +235,62 @@ ${blocoItens}
 }
 
 /* ---------- Integração com a API do GitHub ---------- */
-async function publicarNoGitHub(conteudo) {
+function urlConteudoGitHub(caminhoArquivo) {
   const [dono, repositorio] = GITHUB_REPO.split("/");
-  const caminhoArquivo = GITHUB_FILE_PATH.split("/").map(encodeURIComponent).join("/");
-  const urlBase = `https://api.github.com/repos/${encodeURIComponent(dono)}/${encodeURIComponent(repositorio)}/contents/${caminhoArquivo}`;
-  const cabecalhos = {
+  const caminho = caminhoArquivo.split("/").map(encodeURIComponent).join("/");
+  return `https://api.github.com/repos/${encodeURIComponent(dono)}/${encodeURIComponent(repositorio)}/contents/${caminho}`;
+}
+
+function cabecalhosGitHub() {
+  return {
     Authorization: `Bearer ${GITHUB_TOKEN}`,
     Accept: "application/vnd.github+json",
     "Content-Type": "application/json",
   };
+}
 
-  const respostaAtual = await fetch(`${urlBase}?ref=${encodeURIComponent(GITHUB_BRANCH)}`, {
-    headers: cabecalhos,
+// Retorna o SHA atual do arquivo, ou null se ele ainda não existe (404).
+async function lerShaArquivoGitHub(caminhoArquivo) {
+  const resposta = await fetch(`${urlConteudoGitHub(caminhoArquivo)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`, {
+    headers: cabecalhosGitHub(),
     signal: AbortSignal.timeout(TEMPO_LIMITE_GITHUB_MS),
   });
-  if (!respostaAtual.ok) {
-    throw new Error(`Não foi possível ler o arquivo atual no GitHub (${respostaAtual.status}).`);
+  if (resposta.status === 404) return null;
+  if (!resposta.ok) {
+    throw new Error(`Não foi possível ler o arquivo atual no GitHub (${resposta.status}).`);
   }
-  const atual = await respostaAtual.json();
+  const atual = await resposta.json();
   if (!atual || typeof atual.sha !== "string") {
     throw new Error("Resposta inválida ao ler o arquivo atual no GitHub.");
   }
+  return atual.sha;
+}
 
-  const respostaCommit = await fetch(urlBase, {
+async function commitArquivoGitHub({ caminhoArquivo, conteudoBase64, mensagem, sha }) {
+  const corpo = { message: mensagem, content: conteudoBase64, branch: GITHUB_BRANCH };
+  if (sha) corpo.sha = sha;
+  const resposta = await fetch(urlConteudoGitHub(caminhoArquivo), {
     method: "PUT",
-    headers: cabecalhos,
+    headers: cabecalhosGitHub(),
     signal: AbortSignal.timeout(TEMPO_LIMITE_GITHUB_MS),
-    body: JSON.stringify({
-      message: "Atualiza catálogo de tendências via painel admin",
-      content: Buffer.from(conteudo, "utf-8").toString("base64"),
-      sha: atual.sha,
-      branch: GITHUB_BRANCH,
-    }),
+    body: JSON.stringify(corpo),
   });
-
-  if (!respostaCommit.ok) {
-    throw new Error(`Falha ao publicar no GitHub (${respostaCommit.status}).`);
+  if (!resposta.ok) {
+    throw new Error(`Falha ao publicar no GitHub (${resposta.status}).`);
   }
+}
+
+async function publicarNoGitHub(conteudo) {
+  const sha = await lerShaArquivoGitHub(GITHUB_FILE_PATH);
+  if (!sha) {
+    throw new Error("Arquivo de catálogo não encontrado no GitHub.");
+  }
+  await commitArquivoGitHub({
+    caminhoArquivo: GITHUB_FILE_PATH,
+    conteudoBase64: Buffer.from(conteudo, "utf-8").toString("base64"),
+    mensagem: "Atualiza catálogo de tendências via painel admin",
+    sha,
+  });
 }
 
 /* ---------- Autenticação por token (comparação em tempo constante) ---------- */
@@ -263,6 +335,88 @@ app.post("/api/catalog/update", limiteAtualizacao, autenticarCatalogo, exigirJso
   }
 });
 
+app.post("/api/images/upload", limiteAtualizacao, autenticarCatalogo, exigirJson, lerJsonImagem, async (req, res) => {
+  const corpo = req.body;
+  if (!corpo || typeof corpo !== "object" || Array.isArray(corpo)) {
+    return res.status(400).json({ status: "erro", mensagem: "Corpo inválido." });
+  }
+
+  const { nome, conteudo, sobrescrever } = corpo;
+
+  if (!nomeImagemValido(nome)) {
+    return res.status(400).json({
+      status: "erro",
+      mensagem: "Nome inválido. Use apenas letras, números, ponto, hífen ou sublinhado, com extensão jpg, jpeg, png, webp, gif ou avif.",
+    });
+  }
+  if (typeof conteudo !== "string" || conteudo.length === 0 || conteudo.length > 8_000_000) {
+    return res.status(400).json({ status: "erro", mensagem: "Campo 'conteudo' (base64 da imagem) inválido." });
+  }
+  if (sobrescrever !== undefined && typeof sobrescrever !== "boolean") {
+    return res.status(400).json({ status: "erro", mensagem: "Campo 'sobrescrever' deve ser true ou false." });
+  }
+
+  // Aceita um prefixo data:URL opcional e valida o base64 de forma estrita
+  // (Buffer.from é tolerante e ignoraria lixo silenciosamente).
+  const base64 = conteudo.replace(/^data:[a-z0-9.+-]+\/[a-z0-9.+-]+;base64,/i, "");
+  if (base64.length % 4 !== 0 || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) {
+    return res.status(400).json({ status: "erro", mensagem: "Conteúdo não está em base64 válido." });
+  }
+
+  const buffer = Buffer.from(base64, "base64");
+  if (buffer.length === 0) {
+    return res.status(400).json({ status: "erro", mensagem: "Imagem vazia." });
+  }
+  if (buffer.length > MAX_IMAGEM_BYTES) {
+    return res.status(413).json({
+      status: "erro",
+      mensagem: `Imagem grande demais (máximo ${Math.floor(MAX_IMAGEM_BYTES / 1024 / 1024)} MB).`,
+    });
+  }
+
+  const formato = detectarFormatoImagem(buffer);
+  if (!formato) {
+    return res.status(415).json({
+      status: "erro",
+      mensagem: "O conteúdo não é uma imagem válida (JPEG, PNG, WebP, GIF ou AVIF).",
+    });
+  }
+  // A extensão declarada precisa bater com o formato real dos bytes.
+  const extensao = nome.slice(nome.lastIndexOf(".") + 1).toLowerCase();
+  const extensaoNormalizada = extensao === "jpg" ? "jpeg" : extensao;
+  if (extensaoNormalizada !== formato) {
+    return res.status(415).json({
+      status: "erro",
+      mensagem: "A extensão do arquivo não corresponde ao conteúdo real da imagem.",
+    });
+  }
+
+  const caminhoArquivo = `imgs/${nome}`;
+  if (!caminhoImagemValido(caminhoArquivo)) {
+    return res.status(400).json({ status: "erro", mensagem: "Caminho de imagem inválido." });
+  }
+
+  try {
+    const sha = await lerShaArquivoGitHub(caminhoArquivo);
+    if (sha && sobrescrever !== true) {
+      return res.status(409).json({
+        status: "erro",
+        mensagem: "Já existe uma imagem com esse nome. Envie \"sobrescrever\": true para substituir.",
+      });
+    }
+    await commitArquivoGitHub({
+      caminhoArquivo,
+      conteudoBase64: buffer.toString("base64"),
+      mensagem: `${sha ? "Atualiza" : "Adiciona"} imagem ${nome} via painel admin`,
+      sha: sha || undefined,
+    });
+    return res.json({ status: "ok", caminho: caminhoArquivo });
+  } catch (erro) {
+    console.error("Erro ao publicar imagem:", erro.message);
+    return res.status(502).json({ status: "erro", mensagem: "Falha ao publicar a imagem." });
+  }
+});
+
 const ARQUIVOS_ESTATICOS = [
   "index.html",
   "admin.html",
@@ -299,4 +453,12 @@ if (require.main === module) {
   });
 }
 
-module.exports = { app, caminhoImagemValido, montarConteudoArquivo, tokenValido, validarPayload };
+module.exports = {
+  app,
+  caminhoImagemValido,
+  detectarFormatoImagem,
+  montarConteudoArquivo,
+  nomeImagemValido,
+  tokenValido,
+  validarPayload,
+};

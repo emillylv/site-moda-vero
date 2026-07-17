@@ -1,0 +1,239 @@
+/* =========================================================================
+   MODA BH VERO — Design System (tokens) + estilos do site
+   As fontes (--font-serif-display / --font-sans-body) são injetadas por
+   next/font em app/layout.tsx. Os tokens abaixo vêm do design system
+   "Moda BH Vero" (tokens/colors.css, spacing.css, typography.css).
+   ========================================================================= */
+
+:root {
+  /* ---------- Cores (marca) ---------- */
+  --color-tinta: #1c1814;
+  --color-tinta-suave: #34302a;
+  --color-papel: #f8f2e7;
+  --color-papel-fundo: #efe6d3;
+  --color-terracota: #ad5430;
+  --color-terracota-escuro: #863f22;
+  --color-camel: #c7a06a;
+
+  /* ---------- Cores semânticas ---------- */
+  --color-text-primary: var(--color-tinta);
+  --color-text-secondary: var(--color-tinta-suave);
+  --color-text-muted: rgba(28, 24, 20, 0.6);
+  --color-text-light: var(--color-papel);
+
+  --color-bg-primary: var(--color-papel);
+  --color-bg-secondary: var(--color-papel-fundo);
+  --color-bg-dark: var(--color-tinta);
+
+  --color-accent: var(--color-terracota);
+  --color-accent-dark: var(--color-terracota-escuro);
+  --color-accent-muted: rgba(173, 84, 48, 0.15);
+
+  --color-support: var(--color-camel);
+  --color-support-light: rgba(199, 160, 106, 0.2);
+
+  --color-line: rgba(28, 24, 20, 0.14);
+  --color-line-light: rgba(248, 242, 231, 0.22);
+
+  --color-success: #2e7d5c;
+  --color-warning: #c9a047;
+  --color-error: #a24949;
+  --color-info: #4a7ba7;
+
+  --color-hover-light: rgba(173, 84, 48, 0.08);
+  --color-active-light: rgba(173, 84, 48, 0.12);
+
+  /* ---------- Tipografia ---------- */
+  /* --font-serif-display e --font-sans-body definidas por next/font */
+  --font-size-display-lg: 48px;
+  --font-size-display-md: 40px;
+  --font-size-display-sm: 32px;
+  --line-height-display: 1.1;
+  --letter-spacing-display: -0.01em;
+
+  --font-size-heading-lg: 28px;
+  --font-size-heading-md: 24px;
+  --font-size-heading-sm: 20px;
+  --line-height-heading: 1.3;
+  --letter-spacing-heading: -0.005em;
+
+  --font-size-body-lg: 18px;
+  --font-size-body-md: 16px;
+  --font-size-body-sm: 14px;
+  --line-height-body: 1.6;
+
+  --font-size-caption-lg: 13px;
+  --font-size-caption-md: 12px;
+
+  --font-weight-body: 400;
+  --font-weight-heading: 600;
+  --font-weight-button: 600;
+
+  /* ---------- Espaçamento (base 8pt) ---------- */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+  --spacing-3xl: 48px;
+  --spacing-4xl: 64px;
+  --spacing-5xl: 80px;
+  --spacing-6xl: 96px;
+
+  /* ---------- Raio ---------- */
+  --radius-none: 0;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+
+  /* ---------- Sombras ---------- */
+  --shadow-xs: 0 2px 4px -2px rgba(28, 24, 20, 0.08);
+  --shadow-sm: 0 4px 8px -4px rgba(28, 24, 20, 0.12);
+  --shadow-md: 0 8px 16px -8px rgba(28, 24, 20, 0.16);
+  --shadow-lg: 0 16px 32px -16px rgba(28, 24, 20, 0.24);
+  --shadow-xl: 0 24px 48px -24px rgba(28, 24, 20, 0.35);
+  --shadow-2xl: 0 32px 64px -32px rgba(28, 24, 20, 0.4);
+
+  /* ---------- Layout ---------- */
+  --container-max: 1180px;
+  --transicao: 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* =========================================================================
+   RESET / BASE
+   ========================================================================= */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans-body);
+  font-size: var(--font-size-body-md);
+  line-height: var(--line-height-body);
+  text-wrap: pretty;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif-display);
+  font-weight: var(--font-weight-heading);
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-heading);
+  margin: 0;
+}
+
+h1,
+h2 {
+  line-height: var(--line-height-display);
+  letter-spacing: var(--letter-spacing-display);
+}
+
+p {
+  margin: 0;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  font-family: inherit;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: auto;
+  background: var(--color-tinta);
+  color: var(--color-papel);
+  padding: var(--spacing-md) var(--spacing-xl);
+  z-index: 999;
+  border-radius: var(--radius-sm);
+}
+.skip-link:focus {
+  left: var(--spacing-lg);
+  top: var(--spacing-lg);
+}
+
+/* =========================================================================
+   UTILITÁRIOS DE SEÇÃO
+   ========================================================================= */
+.section {
+  padding: var(--spacing-6xl) var(--spacing-xl);
+}
+
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+}
+
+.cabecalho-secao {
+  max-width: var(--container-max);
+  margin: 0 auto var(--spacing-3xl);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+h2 {
+  font-size: clamp(2.1rem, 1.6rem + 2vw, 3.1rem);
+}
+
+.eyebrow {
+  font-family: var(--font-sans-body);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--color-accent-dark);
+}
