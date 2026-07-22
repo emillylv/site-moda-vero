@@ -1,5 +1,7 @@
 // O ID de medição é público por natureza; nenhuma credencial fica neste arquivo.
 var GOOGLE_ANALYTICS_ID = 'G-F7VFWPM4LR';
+var GOOGLE_ADS_ID = 'AW-11184553318';
+var GOOGLE_ADS_CONVERSION_LABEL = '4jyACIONoNQcEOb6mtUp';
 var analyticsIniciado = false;
 var eventosConfigurados = false;
 
@@ -33,6 +35,15 @@ function configurarEventos() {
   trackClicks('a[href*="api.whatsapp.com"], a[href*="wa.me"]', 'whatsapp_click');
   trackClicks('a[href*="instagram.com"]', 'instagram_click');
   trackClicks('a[href="#section-tendencias"]', 'ver_colecao_click');
+
+  document.querySelectorAll('a[href*="agendar%20uma%20consultoria"]').forEach(function (link) {
+    link.addEventListener('click', function () {
+      if (!analyticsIniciado) return;
+      gtag('event', 'conversion', {
+        send_to: GOOGLE_ADS_ID + '/' + GOOGLE_ADS_CONVERSION_LABEL
+      });
+    });
+  });
 }
 
 function iniciarAnalytics() {
@@ -55,6 +66,7 @@ function iniciarAnalytics() {
   });
   gtag('js', new Date());
   gtag('config', GOOGLE_ANALYTICS_ID);
+  gtag('config', GOOGLE_ADS_ID);
 
   var scriptGoogle = document.createElement('script');
   scriptGoogle.async = true;
