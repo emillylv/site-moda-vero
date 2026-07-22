@@ -5,8 +5,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
+    content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; script-src-attr 'none'; style-src 'self'; font-src 'self'; img-src 'self' data: blob: https://*.google-analytics.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'self'">
+  <meta name="referrer" content="no-referrer">
   <title>Verônica Chaves | Assessoria de Moda em Belo Horizonte</title>
   <meta name="description"
     content="Assessoria de moda para lojistas em Belo Horizonte. Curadoria exclusiva de peças no atacado, consultoria personalizada e envio para todo o Brasil.">
@@ -21,11 +21,8 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="stylesheet" href="styles.css">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap"
-    rel="stylesheet">
+  <!-- Analytics só carrega depois do consentimento explícito. -->
+  <script src="analytics.js" defer></script>
 </head>
 
 <body>
@@ -185,7 +182,6 @@
           <img class="icones" src="imgs/ws.png" alt=""></a>
       </p>
     </div>
-    <p class="footer-admin"><a href="admin.html">Editar coleção (painel interno)</a></p>
   </footer>
 
   <!-- Botão flutuante do WhatsApp -->
@@ -194,6 +190,16 @@
     target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
     <img src="imgs/ws.png" alt="" width="28" height="28">
   </a>
+
+  <!-- Aviso de cookies (LGPD) -->
+  <div id="cookie-banner" class="cookie-banner" hidden>
+    <p>Usamos cookies para entender como você usa o site e melhorar sua experiência.
+      <a href="https://policies.google.com/technologies/cookies" target="_blank" rel="noopener">Saiba mais</a>.</p>
+    <div class="cookie-banner-botoes">
+      <button id="cookie-aceitar" class="btn btn-primario">Aceitar</button>
+      <button id="cookie-rejeitar" class="btn btn-secundario">Rejeitar</button>
+    </div>
+  </div>
 
   <script src="trends-data.js"></script>
   <script src="script.js"></script>

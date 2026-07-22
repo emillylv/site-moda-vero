@@ -1,9 +1,9 @@
+import "server-only";
+
 /* =========================================================================
    Integração com a API do GitHub (Contents API) — portado de server.js.
    Faz commit direto de arquivos no repositório configurado, sem disco.
    ========================================================================= */
-
-import crypto from "crypto";
 
 const TEMPO_LIMITE_GITHUB_MS = 10_000;
 
@@ -11,7 +11,7 @@ export interface GithubConfig {
   token: string;
   repo: string; // "usuario/repositorio"
   branch: string;
-  dataPath: string; // onde o catálogo (trends.ts) é gravado
+  dataPath: string; // onde o catálogo JSON é gravado
   imagesDir: string; // pasta onde as imagens são gravadas
 }
 
@@ -20,7 +20,7 @@ export function lerConfigGitHub(): GithubConfig | { erro: string } {
   const token = process.env.GITHUB_TOKEN;
   const repo = process.env.GITHUB_REPO;
   const branch = process.env.GITHUB_BRANCH || "main";
-  const dataPath = process.env.GITHUB_DATA_PATH || "web/lib/trends.ts";
+  const dataPath = process.env.GITHUB_DATA_PATH || "web/data/trends.json";
   const imagesDir = process.env.GITHUB_IMAGES_DIR || "web/public/imgs";
 
   if (!token || !repo) {
@@ -37,10 +37,19 @@ export function lerConfigGitHub(): GithubConfig | { erro: string } {
   ) {
     return { erro: "GITHUB_BRANCH inválida." };
   }
-  if (dataPath.startsWith("/") || dataPath.includes("..")) {
-    return { erro: "GITHUB_DATA_PATH deve ser um caminho relativo seguro." };
+  if (
+    !/^[A-Za-z0-9._/-]+\.json$/.test(dataPath) ||
+    dataPath.startsWith("/") ||
+    dataPath.includes("..")
+  ) {
+    return { erro: "GITHUB_DATA_PATH deve ser um caminho JSON relativo seguro." };
   }
-  if (imagesDir.startsWith("/") || imagesDir.includes("..")) {
+  if (
+    !/^[A-Za-z0-9._/-]+$/.test(imagesDir) ||
+    imagesDir.startsWith("/") ||
+    imagesDir.endsWith("/") ||
+    imagesDir.includes("..")
+  ) {
     return { erro: "GITHUB_IMAGES_DIR deve ser um caminho relativo seguro." };
   }
   return { token, repo, branch, dataPath, imagesDir };
@@ -73,6 +82,8 @@ export async function lerShaArquivoGitHub(
     {
       headers: cabecalhosGitHub(cfg),
       signal: AbortSignal.timeout(TEMPO_LIMITE_GITHUB_MS),
+      cache: "no-store",
+      redirect: "error",
     }
   );
   if (resposta.status === 404) return null;
@@ -101,6 +112,8 @@ export async function commitArquivoGitHub(
     method: "PUT",
     headers: cabecalhosGitHub(cfg),
     signal: AbortSignal.timeout(TEMPO_LIMITE_GITHUB_MS),
+    cache: "no-store",
+    redirect: "error",
     body: JSON.stringify(corpo),
   });
   if (!resposta.ok) {
@@ -108,7 +121,7 @@ export async function commitArquivoGitHub(
   }
 }
 
-/** Grava o conteúdo do catálogo (trends.ts) no caminho configurado. */
+/** Grava o conteúdo do catálogo JSON no caminho configurado. */
 export async function publicarCatalogoNoGitHub(
   cfg: GithubConfig,
   conteudo: string
@@ -123,18 +136,4 @@ export async function publicarCatalogoNoGitHub(
     mensagem: "Atualiza catálogo de tendências via painel admin",
     sha,
   });
-}
-
-/* ---------- Autenticação por token (comparação em tempo constante) ---------- */
-
-/** Valida o header Authorization contra CATALOG_TOKEN. */
-export function tokenValido(cabecalhoAuth: string | null): boolean {
-  const esperado = process.env.CATALOG_TOKEN;
-  if (!esperado) return false;
-  if (!cabecalhoAuth || !cabecalhoAuth.startsWith("Bearer ")) return false;
-
-  const recebido = cabecalhoAuth.slice("Bearer ".length);
-  const hashEsperado = crypto.createHash("sha256").update(esperado, "utf8").digest();
-  const hashRecebido = crypto.createHash("sha256").update(recebido, "utf8").digest();
-  return crypto.timingSafeEqual(hashRecebido, hashEsperado);
 }

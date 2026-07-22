@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { LINKS } from "@/lib/links";
 
 export function Footer() {
@@ -19,9 +18,6 @@ export function Footer() {
           </a>
         </p>
       </div>
-      <p className="footer-admin">
-        <Link href="/admin">Editar coleção (painel interno)</Link>
-      </p>
     </footer>
   );
 }

@@ -1,20 +1,16 @@
 /* =========================================================================
    Validação compartilhada do catálogo (usada pela API e pelo painel admin).
-   Portado de server.js/admin.js. No projeto Next.js os caminhos de imagem
+   No projeto Next.js os caminhos de imagem
    seguem a convenção da pasta public: "/imgs/<arquivo>".
    ========================================================================= */
 
-import { ETIQUETAS_VALIDAS } from "./trends";
+import { ETIQUETAS_VALIDAS } from "./catalog.ts";
 
 const ETIQUETAS = new Set<string>(ETIQUETAS_VALIDAS);
 
 // Caminho de imagem servido pela pasta public do Next: /imgs/<nome>.<ext>
 const RE_CAMINHO_IMAGEM =
   /^\/imgs\/[A-Za-z0-9][A-Za-z0-9._-]*\.(?:avif|gif|jpe?g|png|webp)$/i;
-
-// Apenas o nome do arquivo (sem pasta), para upload.
-const RE_NOME_IMAGEM =
-  /^[A-Za-z0-9][A-Za-z0-9._-]*\.(?:avif|gif|jpe?g|png|webp)$/i;
 
 export interface LookPayload {
   imagem: string;
@@ -30,14 +26,6 @@ export interface CatalogPayload {
 
 export function caminhoImagemValido(caminho: unknown): caminho is string {
   return typeof caminho === "string" && RE_CAMINHO_IMAGEM.test(caminho);
-}
-
-export function nomeImagemValido(nome: unknown): nome is string {
-  return (
-    typeof nome === "string" &&
-    !nome.includes("..") &&
-    RE_NOME_IMAGEM.test(nome)
-  );
 }
 
 /** Retorna null se o payload for válido, ou uma mensagem de erro. */
@@ -137,64 +125,19 @@ export function detectarFormatoImagem(buffer: Buffer): string | null {
   return null;
 }
 
-function formatarString(texto: string | null | undefined): string {
-  return JSON.stringify(texto || "")
-    .replace(/\u2028/g, "\\u2028")
-    .replace(/\u2029/g, "\\u2029");
-}
-
 /**
- * Gera o conteúdo de lib/trends.ts a partir do payload do painel.
- * O módulo resultante é importado pelas Server Components do site.
+ * Serializa apenas dados validados. O painel grava JSON em vez de gerar
+ * TypeScript executável, reduzindo a superfície da cadeia de publicação.
  */
 export function montarConteudoArquivo(corpo: CatalogPayload): string {
-  const nomeColecao = corpo.colecao || "Coleção atual";
-
-  const blocoItens = corpo.itens
-    .map((item) => {
-      return `    {
-      imagem: ${formatarString(item.imagem)},
-      imagemHover: ${formatarString(item.imagemHover || item.imagem)},
-      titulo: ${formatarString(item.titulo)},
-      etiqueta: ${formatarString(item.etiqueta)} as Etiqueta,
-    }`;
-    })
-    .join(",\n");
-
-  return `/* ===================================================================
-   COLEÇÃO ATUAL — dados tipados (migrado de trends-data.js)
-   Atualizado via painel (/admin) em ${new Date().toLocaleString("pt-BR")}.
-   Você também pode editar este arquivo manualmente.
-   =================================================================== */
-
-export const ETIQUETAS_VALIDAS = [
-  "Tendência",
-  "Novo",
-  "Mais pedido",
-  "Edição limitada",
-  "",
-] as const;
-
-export type Etiqueta = (typeof ETIQUETAS_VALIDAS)[number];
-
-export interface LookColecao {
-  imagem: string;
-  imagemHover?: string;
-  titulo?: string;
-  etiqueta?: Etiqueta;
-}
-
-export interface Colecao {
-  colecao: string;
-  itens: LookColecao[];
-}
-
-export const colecaoTendencias: Colecao = {
-  colecao: ${formatarString(nomeColecao)},
-
-  itens: [
-${blocoItens}
-  ],
-};
-`;
+  const seguro = {
+    colecao: corpo.colecao || "Coleção atual",
+    itens: corpo.itens.map((item) => ({
+      imagem: item.imagem,
+      imagemHover: item.imagemHover || item.imagem,
+      titulo: item.titulo || "",
+      etiqueta: item.etiqueta || "",
+    })),
+  };
+  return `${JSON.stringify(seguro, null, 2)}\n`;
 }

@@ -650,15 +650,6 @@ footer {
   transition: opacity var(--transicao);
 }
 .footer-icones a:hover img.icones { opacity: 1; }
-.footer-admin {
-  opacity: 0.45;
-  font-size: 0.74rem;
-  text-align: center;
-  margin-top: 18px;
-}
-.footer-admin a { text-decoration: underline; }
-.footer-admin a:hover { opacity: 1; }
-
 /* =========================================================================
    BOTÃO FLUTUANTE WHATSAPP
    ========================================================================= */
@@ -679,6 +670,30 @@ footer {
 }
 #whatsapp-popup:hover { transform: scale(1.08); }
 #whatsapp-popup img { width: 28px; height: 28px; filter: brightness(0) invert(1); }
+
+.cookie-banner {
+  position: fixed;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  max-width: 620px;
+  margin-inline: auto;
+  background: var(--tinta);
+  color: var(--papel);
+  padding: 20px 24px;
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  z-index: 100;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  justify-content: space-between;
+}
+.cookie-banner p { margin: 0; font-size: 0.92rem; line-height: 1.5; flex: 1 1 260px; }
+.cookie-banner a { color: var(--camel); text-decoration: underline; }
+.cookie-banner-botoes { display: flex; gap: 10px; flex-shrink: 0; }
+.cookie-banner-botoes .btn { padding: 8px 18px; font-size: 0.9rem; }
 
 /* =========================================================================
    RESPONSIVO

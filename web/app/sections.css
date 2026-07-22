@@ -601,19 +601,6 @@ img.marca:hover {
 .footer-icones a:hover img.icone {
   opacity: 1;
 }
-.footer-admin {
-  opacity: 0.45;
-  font-size: 0.74rem;
-  text-align: center;
-  margin-top: 18px;
-}
-.footer-admin a {
-  text-decoration: underline;
-}
-.footer-admin a:hover {
-  opacity: 1;
-}
-
 /* =========================================================================
    BOTÃO FLUTUANTE WHATSAPP
    ========================================================================= */
@@ -639,6 +626,45 @@ img.marca:hover {
   width: 28px;
   height: 28px;
   filter: brightness(0) invert(1);
+}
+
+/* Consentimento: nenhum terceiro é carregado antes da escolha explícita. */
+.cookie-banner {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  left: 20px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  width: min(620px, calc(100% - 40px));
+  margin-inline: auto;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border: 1px solid rgba(248, 242, 231, 0.15);
+  border-radius: var(--radius-lg);
+  background: var(--color-tinta);
+  color: var(--color-papel);
+  box-shadow: var(--shadow-lg);
+}
+.cookie-banner p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+.cookie-banner a {
+  color: var(--color-camel);
+  text-decoration: underline;
+}
+.cookie-banner-botoes {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--spacing-sm);
+}
+.cookie-banner-botoes .ds-button--outline {
+  border-color: rgba(248, 242, 231, 0.5);
+  color: var(--color-papel);
 }
 
 /* =========================================================================
@@ -730,6 +756,14 @@ img.marca:hover {
   .footer-inner {
     flex-direction: column;
     text-align: center;
+  }
+
+  .cookie-banner {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .cookie-banner-botoes .ds-button {
+    flex: 1;
   }
 }
 

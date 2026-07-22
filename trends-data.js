@@ -4,7 +4,7 @@
 
    Este arquivo controla TUDO que aparece na seção "Tendências" do
    site. Você pode editar direto aqui (sem precisar tocar no HTML),
-   ou usar o painel visual em admin.html, que gera este arquivo
+   ou atualizar o catálogo pelo painel protegido da aplicação Next.js
    automaticamente para você.
 
    COMO TROCAR A COLEÇÃO ATUAL:

@@ -4,6 +4,7 @@ import "./globals.css";
 import "./sections.css";
 import "./animations.css";
 import "../components/ds/ds.css";
+import { obterBaseMetadata } from "@/lib/server/siteUrl";
 
 // Fontes do design system Moda BH Vero — auto-hospedadas pelo next/font
 // (sem requisição a CDN externo). Expostas como CSS custom properties.
@@ -23,7 +24,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_URL || "http://localhost:3000"),
+  metadataBase: obterBaseMetadata(),
   title: "Verônica Chaves | Assessoria de Moda em Belo Horizonte",
   description:
     "Assessoria de moda para lojistas em Belo Horizonte. Curadoria exclusiva de peças no atacado, consultoria personalizada e envio para todo o Brasil.",
@@ -42,6 +43,10 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
 };
+
+// A CSP usa um nonce novo por requisição; o Next precisa renderizar o HTML
+// dinamicamente para aplicar esse nonce aos scripts do framework.
+export const dynamic = "force-dynamic";
 
 export default function RootLayout({
   children,

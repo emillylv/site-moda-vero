@@ -1,94 +1,71 @@
-# Verônica Chaves — Site (Next.js + Moda BH Vero Design System)
+# Verônica Chaves — Next.js
 
-Reescrita do site institucional da **Verônica Chaves — Assessoria de Moda** em
-**Next.js (App Router + TypeScript)**, aplicando o design system **Moda BH Vero**
-(tokens de cor/tipografia/espaçamento/sombra e os primitivos Button, Card, Badge,
-Input e Heading).
+Aplicação principal do site: Next.js 15.5.21 Maintenance LTS, App Router,
+React 19 e TypeScript estrito. Site público, painel e backend administrativo
+executam no mesmo framework.
 
-## Stack
-
-- **Next.js 15** (App Router, React 19, Server Components)
-- **TypeScript** (strict)
-- Fontes **Cormorant Garamond** + **Manrope** via `next/font` (auto-hospedadas, sem CDN)
-- Estilos com **CSS custom properties** (tokens do design system) — sem dependência de UI externa
-
-## Estrutura
-
-```
-web/
-├── app/
-│   ├── layout.tsx            # fontes, metadados, tokens globais
-│   ├── globals.css           # tokens do DS + base
-│   ├── sections.css          # estilos das seções do site
-│   ├── page.tsx              # home (monta as seções)
-│   ├── admin/page.tsx        # painel interno (noindex)
-│   └── api/
-│       ├── catalog/update/   # POST — publica a coleção (commit no GitHub)
-│       └── images/upload/    # POST — publica uma imagem (commit no GitHub)
-├── components/
-│   ├── ds/                   # primitivos do design system (Button, Card, Badge, Input, Heading)
-│   ├── site/                 # seções (Header, Hero, Trends, HowItWorks, Brands, About, Contact, Footer, WhatsAppButton)
-│   └── admin/                # editor visual da coleção
-├── lib/
-│   ├── trends.ts             # dados da coleção (tipados) — editável à mão ou pelo painel
-│   ├── validation.ts         # validação compartilhada + gerador de trends.ts
-│   ├── github.ts             # integração com a Contents API do GitHub + auth por token
-│   ├── rateLimit.ts          # rate limiter em memória
-│   └── links.ts              # WhatsApp / Instagram
-└── public/imgs/              # imagens da marca e dos looks
-```
-
-## Desenvolvimento
+## Rodar localmente
 
 ```bash
-npm install
-npm run dev      # http://localhost:3000
-npm run build    # build de produção
-npm run start    # serve o build
-npm run lint
+npm ci
+cp .env.example .env.local
+npm run admin:hash-password
+npm run dev
 ```
 
-## Como editar a coleção
+Gere `ADMIN_SESSION_SECRET` separadamente (`openssl rand -base64 48`) e
+preencha todas as variáveis descritas em `.env.example`.
 
-Duas formas, ambas alterando `lib/trends.ts`:
+## Estrutura relevante
 
-1. **À mão** — edite `lib/trends.ts` (mesma forma da coleção original).
-2. **Painel visual** — acesse `/admin`, monte os looks e clique em
-   **“Publicar direto no site”** informando a `CATALOG_TOKEN`. O painel faz
-   `POST /api/catalog/update`; a API valida, gera o novo `lib/trends.ts` e o
-   **commita no GitHub**, disparando um novo deploy.
+```text
+app/admin/login/                 login server-side
+app/admin/page.tsx               painel protegido
+app/api/admin/session/           criação/remoção da sessão
+app/api/admin/catalog/           publicação do catálogo
+app/api/admin/images/            processamento/publicação de imagens
+components/admin/                editor React dividido por responsabilidade
+data/trends.json                 catálogo público, sem código executável
+lib/server/                      sessão, CSRF, limites e código server-only
+lib/security/                    primitivas testáveis de senha e sessão
+public/imgs/                     mídia pública
+middleware.ts                    CSP estrita com nonce por requisição
+```
 
-## Animações
+O painel atualiza `data/trends.json` e imagens via GitHub Contents API. Use um
+token fine-grained restrito ao repositório e à permissão `Contents: read/write`.
+O token nunca é enviado ao navegador. A foto só é transmitida após uma segunda
+confirmação no painel; depois disso ela é gravada imediatamente no repositório,
+antes da publicação do catálogo. Prefira repositório privado ou branch de
+staging caso a mídia não possa ficar acessível antes de entrar na coleção.
 
-Movimento discreto e editorial, alinhado ao design system (fades, deslizes
-curtos e escalas sutis, 300–800ms, ease-out):
+## Segurança
 
-- **Scroll-reveal** com stagger (`app/animations.css` + `components/site/ScrollReveal.tsx`):
-  seções aparecem ao entrar na viewport. As classes `.reveal` / `.reveal--left`
-  / `.reveal--right` / `.stagger` marcam os alvos.
-- **Hero** com entrada encadeada no carregamento e leve zoom-out da imagem.
-- **Header** ganha sombra e compacta ao rolar.
-- Progressive enhancement: os estados ocultos só valem com JS ativo
-  (`html.reveal-enabled`); tudo respeita `prefers-reduced-motion`.
+- senha armazenada como hash scrypt (`N=2^15`, `r=8`, `p=3`);
+- sessão assinada de 8 horas em cookie `HttpOnly`, `Secure`,
+  `SameSite=Strict`, invalidada ao rotacionar senha ou segredo;
+- autorização repetida na Server Component e em cada Route Handler;
+- CSRF vinculado à sessão, `Origin`, host e Fetch Metadata validados;
+- leitura streaming com teto antes do parse JSON;
+- rate limit com IP somente quando o proxy é explicitamente confiável,
+  expiração e cardinalidade limitada (use WAF/Redis compartilhado ao escalar);
+- imagens limitadas a 5 MiB/24 MP, decodificadas e reencodadas para WebP sem
+  EXIF, GPS ou XMP, com nomes aleatórios;
+- CSP com nonce, HSTS em produção e respostas administrativas `no-store`;
+- nenhum segredo usa prefixo `NEXT_PUBLIC_`.
 
-## Variáveis de ambiente
+## Verificações
 
-Veja `.env.example`. Para o painel/API funcionarem em produção são necessárias
-`CATALOG_TOKEN`, `GITHUB_TOKEN` e `GITHUB_REPO` (as demais têm padrão). O site
-público funciona sem nenhuma delas.
+```bash
+npm test
+npm run lint
+npm run typecheck
+npm run build
+npm audit
+```
 
-## Segurança (portado do servidor Express original)
-
-- Autenticação por token com comparação em **tempo constante** (`crypto.timingSafeEqual`).
-- **Rate limiting** nas rotas de publicação (10 tentativas / 15 min por IP).
-- Upload de imagem valida o **formato real** pelos magic numbers (SVG rejeitado)
-  e exige que a extensão bata com o conteúdo.
-- Cabeçalhos de segurança (CSP, X-Frame-Options, etc.) em `next.config.mjs`.
-- `/admin` marcado como `noindex, nofollow`.
-
-## Design System
-
-Os tokens em `app/globals.css` e os primitivos em `components/ds/` seguem o
-design system **Moda BH Vero** (claude.ai/design). Paleta: tinta `#1C1814`,
-papel `#F8F2E7`, terracota `#AD5430`, camel `#C7A06A`. Tipografia editorial
-(Cormorant Garamond) + interface (Manrope).
+Configure o deploy preferencialmente com Node 24.18+ LTS (ou 22.23.1+ na linha
+22); instalações em runtimes mais antigos são recusadas por `engine-strict`.
+Use `SITE_URL` com a origem HTTPS exata. Se a versão antiga do Next chegou a
+ficar online, reimplante primeiro e depois rotacione todos os segredos e o
+token do GitHub.

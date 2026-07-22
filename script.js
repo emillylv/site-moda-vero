@@ -76,29 +76,54 @@ function renderizarTendencias() {
     nomeColecaoEl.textContent = colecaoTendencias.colecao;
   }
 
-  const itens = colecaoTendencias.itens || [];
+  const itens = (Array.isArray(colecaoTendencias.itens) ? colecaoTendencias.itens : [])
+    .filter((item) => item && caminhoImagemSeguro(item.imagem));
+  const fragmento = document.createDocumentFragment();
 
-  grade.innerHTML = itens
-    .filter((item) => item && caminhoImagemSeguro(item.imagem))
-    .map((item, indice) => {
-      const numero = String(indice + 1).padStart(2, "0");
-      const temHover = caminhoImagemSeguro(item.imagemHover) && item.imagemHover !== item.imagem;
+  itens.forEach((item, indice) => {
+    const card = document.createElement("article");
+    card.className = "look-card";
 
-      return `
-        <article class="look-card">
-          ${item.etiqueta ? `<span class="look-tag">${escaparHTML(item.etiqueta)}</span>` : ""}
-          <div class="look-card-imagem">
-            <img class="imagem-base" src="${escaparHTML(item.imagem)}" alt="${escaparHTML(item.titulo || "Look da coleção")}" loading="lazy">
-            ${temHover ? `<img class="imagem-hover" src="${escaparHTML(item.imagemHover)}" alt="" loading="lazy">` : ""}
-          </div>
-          <div class="look-card-legenda">
-            <p class="look-card-titulo">${escaparHTML(item.titulo || "")}</p>
-            <span class="look-card-indice">${numero}</span>
-          </div>
-        </article>
-      `;
-    })
-    .join("");
+    if (item.etiqueta) {
+      const etiqueta = document.createElement("span");
+      etiqueta.className = "look-tag";
+      etiqueta.textContent = String(item.etiqueta);
+      card.appendChild(etiqueta);
+    }
+
+    const imagemContainer = document.createElement("div");
+    imagemContainer.className = "look-card-imagem";
+    const imagemBase = document.createElement("img");
+    imagemBase.className = "imagem-base";
+    imagemBase.src = item.imagem;
+    imagemBase.alt = typeof item.titulo === "string" ? item.titulo : "Look da coleção";
+    imagemBase.loading = "lazy";
+    imagemContainer.appendChild(imagemBase);
+
+    if (caminhoImagemSeguro(item.imagemHover) && item.imagemHover !== item.imagem) {
+      const imagemHover = document.createElement("img");
+      imagemHover.className = "imagem-hover";
+      imagemHover.src = item.imagemHover;
+      imagemHover.alt = "";
+      imagemHover.loading = "lazy";
+      imagemContainer.appendChild(imagemHover);
+    }
+    card.appendChild(imagemContainer);
+
+    const legenda = document.createElement("div");
+    legenda.className = "look-card-legenda";
+    const titulo = document.createElement("p");
+    titulo.className = "look-card-titulo";
+    titulo.textContent = typeof item.titulo === "string" ? item.titulo : "";
+    const numero = document.createElement("span");
+    numero.className = "look-card-indice";
+    numero.textContent = String(indice + 1).padStart(2, "0");
+    legenda.append(titulo, numero);
+    card.appendChild(legenda);
+    fragmento.appendChild(card);
+  });
+
+  grade.replaceChildren(fragmento);
 
   // Reobserva os novos cards para a animação de entrada
   const observador = new IntersectionObserver(
@@ -113,12 +138,6 @@ function renderizarTendencias() {
     { threshold: 0.15 }
   );
   grade.querySelectorAll(".look-card").forEach((card) => observador.observe(card));
-}
-
-function escaparHTML(texto) {
-  const div = document.createElement("div");
-  div.textContent = texto;
-  return div.innerHTML;
 }
 
 function caminhoImagemSeguro(caminho) {

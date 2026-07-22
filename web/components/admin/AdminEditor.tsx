@@ -1,87 +1,86 @@
 "use client";
 
-import { useState } from "react";
-import "./admin.css";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ds/Button";
-import { Field, Input, Select, Textarea } from "@/components/ds/Input";
+import { Field, Input } from "@/components/ds/Input";
 import {
   caminhoImagemValido,
   montarConteudoArquivo,
   type CatalogPayload,
 } from "@/lib/validation";
-import { colecaoTendencias, ETIQUETAS_VALIDAS, type Colecao } from "@/lib/trends";
+import { colecaoTendencias, ETIQUETAS_VALIDAS } from "@/lib/trends";
+import { CatalogPreview } from "./CatalogPreview";
+import { LookEditorCard } from "./LookEditorCard";
+import { PublishBar } from "./PublishBar";
+import type { CampoLookEdicao, LookEdicao, StatusAdmin } from "./types";
 
-interface LookEdicao {
-  id: number;
-  imagem: string;
-  imagemHover: string;
-  titulo: string;
-  etiqueta: string;
+interface AdminEditorProps {
+  csrfToken: string;
 }
 
-const OPCOES_ETIQUETA = [
-  { valor: "Tendência", rotulo: "Tendência" },
-  { valor: "Novo", rotulo: "Novo" },
-  { valor: "Mais pedido", rotulo: "Mais pedido" },
-  { valor: "Edição limitada", rotulo: "Edição limitada" },
-  { valor: "", rotulo: "Sem etiqueta" },
-];
-
-let contadorId = 1;
-
-function estadoInicial(colecao: Colecao): { nome: string; itens: LookEdicao[] } {
-  return {
-    nome: colecao.colecao || "",
-    itens: (colecao.itens || []).map((item) => ({
-      id: contadorId++,
-      imagem: item.imagem || "",
-      imagemHover: item.imagemHover || "",
-      titulo: item.titulo || "",
-      etiqueta: item.etiqueta || "",
-    })),
-  };
+function itensIniciais(): LookEdicao[] {
+  return (colecaoTendencias.itens || []).map((item, indice) => ({
+    id: indice + 1,
+    imagem: item.imagem || "",
+    imagemHover: item.imagemHover || "",
+    titulo: item.titulo || "",
+    etiqueta: item.etiqueta || "",
+  }));
 }
 
-const inicial = estadoInicial(colecaoTendencias);
-
-export function AdminEditor() {
-  const [nome, setNome] = useState(inicial.nome);
-  const [itens, setItens] = useState<LookEdicao[]>(inicial.itens);
-  const [token, setToken] = useState("");
+export function AdminEditor({ csrfToken }: AdminEditorProps) {
+  const [nome, setNome] = useState(colecaoTendencias.colecao || "");
+  const [itens, setItens] = useState<LookEdicao[]>(itensIniciais);
   const [publicando, setPublicando] = useState(false);
-  const [status, setStatus] = useState<{ texto: string; tipo: "ok" | "erro" | "" }>({
-    texto: "",
-    tipo: "",
-  });
-  const [codigoGerado, setCodigoGerado] = useState("");
+  const [status, setStatus] = useState<StatusAdmin>({ texto: "", tipo: "" });
+  const [jsonGerado, setJsonGerado] = useState("");
+  const proximoId = useRef(colecaoTendencias.itens.length + 1);
 
-  function atualizarItem(id: number, campo: keyof LookEdicao, valor: string) {
+  function marcarComoAlterado() {
+    setJsonGerado("");
+  }
+
+  function atualizarNome(valor: string) {
+    setNome(valor);
+    marcarComoAlterado();
+  }
+
+  function atualizarItem(id: number, campo: CampoLookEdicao, valor: string) {
     setItens((atual) =>
       atual.map((item) => (item.id === id ? { ...item, [campo]: valor } : item))
     );
+    marcarComoAlterado();
   }
 
   function adicionarLook() {
+    if (itens.length >= 200) {
+      setStatus({ texto: "A coleção pode ter no máximo 200 looks.", tipo: "erro" });
+      return;
+    }
+    const id = proximoId.current++;
     setItens((atual) => [
       ...atual,
-      { id: contadorId++, imagem: "", imagemHover: "", titulo: "", etiqueta: "Tendência" },
+      { id, imagem: "", imagemHover: "", titulo: "", etiqueta: "Tendência" },
     ]);
+    marcarComoAlterado();
   }
 
   function removerLook(id: number) {
     setItens((atual) => atual.filter((item) => item.id !== id));
+    marcarComoAlterado();
   }
 
   function moverLook(id: number, direcao: -1 | 1) {
     setItens((atual) => {
-      const indice = atual.findIndex((i) => i.id === id);
-      const novo = indice + direcao;
-      if (novo < 0 || novo >= atual.length) return atual;
+      const indice = atual.findIndex((item) => item.id === id);
+      const novoIndice = indice + direcao;
+      if (indice < 0 || novoIndice < 0 || novoIndice >= atual.length) return atual;
       const copia = [...atual];
       const [item] = copia.splice(indice, 1);
-      copia.splice(novo, 0, item);
+      copia.splice(novoIndice, 0, item);
       return copia;
     });
+    marcarComoAlterado();
   }
 
   function validarLocal(): string | null {
@@ -95,11 +94,14 @@ export function AdminEditor() {
         return "Cada foto de hover deve usar um caminho seguro dentro de /imgs.";
       }
       if (item.titulo.length > 200) return "Os títulos devem ter no máximo 200 caracteres.";
+      if (!ETIQUETAS_VALIDAS.includes(item.etiqueta as (typeof ETIQUETAS_VALIDAS)[number])) {
+        return "Há uma etiqueta inválida na coleção.";
+      }
     }
     return null;
   }
 
-  function payload(): CatalogPayload {
+  function montarPayload(): CatalogPayload {
     return {
       colecao: nome,
       itens: itens.map((item) => ({
@@ -112,9 +114,8 @@ export function AdminEditor() {
   }
 
   async function publicar() {
-    const t = token.trim();
-    if (!t) {
-      setStatus({ texto: "Informe a chave de acesso antes de publicar.", tipo: "erro" });
+    if (!csrfToken) {
+      setStatus({ texto: "Sua sessão não pôde ser validada. Recarregue a página.", tipo: "erro" });
       return;
     }
     if (itens.length === 0) {
@@ -130,28 +131,25 @@ export function AdminEditor() {
     setPublicando(true);
     setStatus({ texto: "Publicando...", tipo: "" });
     try {
-      const resposta = await fetch("/api/catalog/update", {
+      const resposta = await fetch("/api/admin/catalog", {
         method: "POST",
+        credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${t}`,
+          "X-CSRF-Token": csrfToken,
         },
-        body: JSON.stringify(payload()),
+        body: JSON.stringify(montarPayload()),
       });
-      if (resposta.status === 401) {
-        setStatus({ texto: "Chave de acesso incorreta.", tipo: "erro" });
-        return;
-      }
       if (!resposta.ok) {
-        const corpo = await resposta.json().catch(() => ({}));
-        setStatus({
-          texto: corpo.mensagem || "Não foi possível publicar. Tente novamente.",
-          tipo: "erro",
-        });
+        const mensagem =
+          resposta.status === 401 || resposta.status === 403
+            ? "Sua sessão expirou. Recarregue a página e entre novamente."
+            : "Não foi possível publicar. Tente novamente.";
+        setStatus({ texto: mensagem, tipo: "erro" });
         return;
       }
+
       setStatus({ texto: "Publicado! O site vai atualizar em alguns minutos.", tipo: "ok" });
-      setToken("");
     } catch {
       setStatus({
         texto: "Erro de conexão. Verifique sua internet e tente novamente.",
@@ -168,27 +166,27 @@ export function AdminEditor() {
       setStatus({ texto: erroLocal, tipo: "erro" });
       return;
     }
-    setCodigoGerado(montarConteudoArquivo(payload()));
-    setStatus({ texto: "Arquivo gerado abaixo.", tipo: "ok" });
+    setJsonGerado(montarConteudoArquivo(montarPayload()));
+    setStatus({ texto: "Arquivo JSON gerado abaixo.", tipo: "ok" });
   }
 
   function baixarArquivo() {
-    if (!codigoGerado) return;
-    const blob = new Blob([codigoGerado], { type: "text/plain;charset=utf-8" });
+    if (!jsonGerado) return;
+    const blob = new Blob([jsonGerado], { type: "application/json;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "trends.ts";
+    link.download = "trends.json";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   }
 
-  async function copiarCodigo() {
-    if (!codigoGerado) return;
+  async function copiarConteudo() {
+    if (!jsonGerado) return;
     try {
-      await navigator.clipboard.writeText(codigoGerado);
+      await navigator.clipboard.writeText(jsonGerado);
       setStatus({ texto: "Conteúdo copiado.", tipo: "ok" });
     } catch {
       setStatus({ texto: "Não foi possível copiar automaticamente.", tipo: "erro" });
@@ -202,15 +200,12 @@ export function AdminEditor() {
         <p>
           Aqui você monta visualmente os looks que aparecem na seção <strong>Tendências</strong>{" "}
           do site, sem escrever código. Ao terminar, clique em{" "}
-          <strong>“Publicar direto no site”</strong> e informe sua chave de acesso.
+          <strong>“Publicar direto no site”</strong>.
         </p>
         <ol className="admin-passos-rapidos">
-          <li>
-            Envie as fotos novas para a pasta <code>public/imgs</code> do site (ou pela API de
-            upload).
-          </li>
-          <li>Edite, adicione ou remova looks aqui embaixo.</li>
-          <li>Publique — o site atualiza sozinho em alguns minutos.</li>
+          <li>Envie uma foto diretamente em cada look ou informe um caminho em /imgs.</li>
+          <li>Edite, adicione, reordene ou remova os looks.</li>
+          <li>Confira a prévia e publique a coleção.</li>
         </ol>
       </section>
 
@@ -219,8 +214,9 @@ export function AdminEditor() {
           <Input
             id="input-nome-colecao"
             value={nome}
+            maxLength={200}
             placeholder="Ex.: Verão 2026"
-            onChange={(e) => setNome(e.target.value)}
+            onChange={(evento) => atualizarNome(evento.target.value)}
           />
         </Field>
       </section>
@@ -229,7 +225,12 @@ export function AdminEditor() {
         <div className="admin-coluna-lista">
           <div className="admin-coluna-cabecalho">
             <h2>Looks da coleção</h2>
-            <Button variant="primary" size="sm" onClick={adicionarLook}>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={adicionarLook}
+              disabled={itens.length >= 200}
+            >
               + Adicionar look
             </Button>
           </div>
@@ -241,181 +242,33 @@ export function AdminEditor() {
           ) : (
             <div className="lista-looks">
               {itens.map((item, indice) => (
-                <div className="look-editor-card" key={item.id}>
-                  <div className="look-editor-thumb">
-                    {item.imagem ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={item.imagem} alt="" />
-                    ) : (
-                      <span>Prévia da foto principal</span>
-                    )}
-                  </div>
-                  <div className="look-editor-campos">
-                    <div className="campo-largo">
-                      <Field label="Título do look" htmlFor={`titulo-${item.id}`}>
-                        <Input
-                          id={`titulo-${item.id}`}
-                          value={item.titulo}
-                          placeholder="Ex.: Alfaiataria leve"
-                          onChange={(e) => atualizarItem(item.id, "titulo", e.target.value)}
-                        />
-                      </Field>
-                    </div>
-                    <Field label="Foto principal" htmlFor={`imagem-${item.id}`}>
-                      <Input
-                        id={`imagem-${item.id}`}
-                        value={item.imagem}
-                        placeholder="/imgs/0001.jpg"
-                        onChange={(e) => atualizarItem(item.id, "imagem", e.target.value)}
-                      />
-                    </Field>
-                    <Field label="Foto ao passar o mouse" htmlFor={`hover-${item.id}`}>
-                      <Input
-                        id={`hover-${item.id}`}
-                        value={item.imagemHover}
-                        placeholder="/imgs/0001-alt.jpg"
-                        onChange={(e) => atualizarItem(item.id, "imagemHover", e.target.value)}
-                      />
-                    </Field>
-                    <div className="campo-largo">
-                      <Field label="Etiqueta" htmlFor={`etiqueta-${item.id}`}>
-                        <Select
-                          id={`etiqueta-${item.id}`}
-                          value={item.etiqueta}
-                          onChange={(e) => atualizarItem(item.id, "etiqueta", e.target.value)}
-                        >
-                          {OPCOES_ETIQUETA.map((op) => (
-                            <option key={op.rotulo} value={op.valor}>
-                              {op.rotulo}
-                            </option>
-                          ))}
-                        </Select>
-                      </Field>
-                    </div>
-                    <div className="look-editor-acoes">
-                      <div className="look-editor-mover">
-                        <button
-                          type="button"
-                          className="botao-icone"
-                          title="Mover para cima"
-                          disabled={indice === 0}
-                          onClick={() => moverLook(item.id, -1)}
-                        >
-                          ↑
-                        </button>
-                        <button
-                          type="button"
-                          className="botao-icone"
-                          title="Mover para baixo"
-                          disabled={indice === itens.length - 1}
-                          onClick={() => moverLook(item.id, 1)}
-                        >
-                          ↓
-                        </button>
-                      </div>
-                      <button
-                        type="button"
-                        className="botao-remover"
-                        onClick={() => removerLook(item.id)}
-                      >
-                        Remover look
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <LookEditorCard
+                  key={item.id}
+                  item={item}
+                  indice={indice}
+                  total={itens.length}
+                  csrfToken={csrfToken}
+                  onChange={atualizarItem}
+                  onMove={moverLook}
+                  onRemove={removerLook}
+                />
               ))}
             </div>
           )}
         </div>
 
-        <div className="admin-coluna-preview">
-          <h2>Prévia no site</h2>
-          <p className="admin-preview-legenda">
-            É assim que vai aparecer na seção Tendências.
-          </p>
-          {itens.length === 0 ? (
-            <p className="admin-preview-vazio">
-              A prévia vai aparecer aqui assim que você adicionar um look.
-            </p>
-          ) : (
-            <div className="grade-tendencias admin-preview-grade">
-              {itens.map((item, indice) => (
-                <article className="look-card em-vista" key={item.id}>
-                  {item.etiqueta ? <span className="look-tag">{item.etiqueta}</span> : null}
-                  <div className="look-card-imagem">
-                    {item.imagem ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img className="imagem-base" src={item.imagem} alt="" />
-                    ) : (
-                      <div className="admin-preview-sem-foto">Sem foto definida</div>
-                    )}
-                  </div>
-                  <div className="look-card-legenda">
-                    <p className="look-card-titulo">{item.titulo || "Sem título"}</p>
-                    <span className="look-card-indice">
-                      {String(indice + 1).padStart(2, "0")}
-                    </span>
-                  </div>
-                </article>
-              ))}
-            </div>
-          )}
-        </div>
+        <CatalogPreview itens={itens} />
       </section>
 
-      <section className="admin-exportar">
-        <h2>Publicar a coleção</h2>
-        <p>
-          Quando a coleção estiver pronta, clique em <strong>“Publicar direto no site”</strong> e
-          informe sua chave de acesso. O site é atualizado automaticamente em alguns minutos.
-        </p>
-
-        <div className="admin-exportar-acoes">
-          <Input
-            type="password"
-            className="admin-input-token"
-            value={token}
-            placeholder="Chave de acesso"
-            autoComplete="off"
-            minLength={32}
-            spellCheck={false}
-            onChange={(e) => setToken(e.target.value)}
-          />
-          <Button variant="primary" onClick={publicar} disabled={publicando}>
-            {publicando ? "Publicando..." : "Publicar direto no site"}
-          </Button>
-        </div>
-        <p
-          className="admin-mensagem-status"
-          role="status"
-          aria-live="polite"
-          data-tipo={status.tipo}
-        >
-          {status.texto}
-        </p>
-
-        <details className="admin-exportar-alternativa">
-          <summary>Prefere gerar o arquivo manualmente?</summary>
-          <div className="admin-exportar-acoes">
-            <Button variant="outline" size="sm" onClick={gerarArquivo}>
-              Gerar arquivo
-            </Button>
-            <Button variant="outline" size="sm" onClick={copiarCodigo} disabled={!codigoGerado}>
-              Copiar conteúdo
-            </Button>
-            <Button variant="outline" size="sm" onClick={baixarArquivo} disabled={!codigoGerado}>
-              Baixar trends.ts
-            </Button>
-          </div>
-          <Textarea
-            className="admin-saida-codigo"
-            readOnly
-            rows={14}
-            value={codigoGerado}
-            placeholder="O conteúdo gerado vai aparecer aqui depois que você clicar em “Gerar arquivo”."
-          />
-        </details>
-      </section>
+      <PublishBar
+        publicando={publicando}
+        status={status}
+        jsonGerado={jsonGerado}
+        onPublish={publicar}
+        onGenerate={gerarArquivo}
+        onCopy={copiarConteudo}
+        onDownload={baixarArquivo}
+      />
     </>
   );
 }
