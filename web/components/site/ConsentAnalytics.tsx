@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 const GOOGLE_ANALYTICS_ID = "G-F7VFWPM4LR";
+const GOOGLE_ADS_ID = "AW-11184553318";
+const GOOGLE_ADS_CONVERSION_LABEL = "4jyACIONoNQcEOb6mtUp";
 const CHAVE_CONSENTIMENTO = "consentimento_cookies";
 
 declare global {
@@ -25,6 +27,7 @@ function iniciarAnalytics() {
   window.gtag("consent", "update", { analytics_storage: "granted" });
   window.gtag("js", new Date());
   window.gtag("config", GOOGLE_ANALYTICS_ID);
+  window.gtag("config", GOOGLE_ADS_ID);
 
   const script = document.createElement("script");
   script.id = "google-analytics-script";
@@ -69,6 +72,11 @@ export function ConsentAnalytics() {
             ? "ver_colecao_click"
             : null;
       if (nome) window.gtag("event", nome, { event_category: "engagement" });
+      if (href.includes("agendar%20uma%20consultoria")) {
+        window.gtag("event", "conversion", {
+          send_to: `${GOOGLE_ADS_ID}/${GOOGLE_ADS_CONVERSION_LABEL}`,
+        });
+      }
     };
     document.addEventListener("click", tratarClique);
     return () => document.removeEventListener("click", tratarClique);
