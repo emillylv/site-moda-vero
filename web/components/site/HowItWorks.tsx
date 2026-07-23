@@ -1,3 +1,5 @@
+import { Folio } from "./Folio";
+
 const PASSOS = [
   {
     numero: "01",
@@ -19,18 +21,29 @@ const PASSOS = [
   },
 ];
 
-export function HowItWorks() {
+export function HowItWorks({ numeroPrancha }: { numeroPrancha: string }) {
   return (
-    <section className="section secao-como-funciona" id="como-funciona">
-      <h2 className="reveal">Como funciona</h2>
-      <div className="passos stagger">
-        {PASSOS.map((passo) => (
-          <div className="passo reveal" key={passo.numero}>
-            <span className="passo-numero">{passo.numero}</span>
-            <h3>{passo.titulo}</h3>
-            <p>{passo.texto}</p>
+    <section className="section secao-como-funciona tom-claro" id="como-funciona">
+      <div className="prancha">
+        <Folio numero={numeroPrancha} rotulo="O método" />
+
+        <div className="prancha-conteudo">
+          <div className="cabecalho-secao reveal">
+            <div className="cabecalho-secao-titulo">
+              <p className="eyebrow eyebrow--com-fio">Da consulta à arara</p>
+              <h2>Como funciona</h2>
+            </div>
           </div>
-        ))}
+          <div className="passos stagger">
+            {PASSOS.map((passo) => (
+              <div className="passo reveal" key={passo.numero}>
+                <span className="passo-numero">{passo.numero}</span>
+                <h3>{passo.titulo}</h3>
+                <p>{passo.texto}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -2,6 +2,9 @@
 
 const WHATSAPP_NUMERO = "5531997433369";
 
+/** O mesmo número em E.164, para `tel:` e para os dados estruturados. */
+export const WHATSAPP_TELEFONE_E164 = `+${WHATSAPP_NUMERO}`;
+
 export function whatsapp(mensagem?: string): string {
   const base = `https://api.whatsapp.com/send/?phone=${WHATSAPP_NUMERO}`;
   const texto = mensagem ? `&text=${encodeURIComponent(mensagem)}` : "&text";

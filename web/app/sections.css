@@ -1,6 +1,13 @@
 /* =========================================================================
-   MODA BH VERO — estilos das seções do site
-   Adaptados do styles.css original para os tokens do design system.
+   MODA BH VERO — pranchas do lookbook (v2)
+   Cada seção declara seu contexto tonal (.tom-escuro / .tom-claro) e os
+   componentes abaixo leem só os tokens semânticos. Nenhuma regra aqui
+   sobrescreve cor por seção — a prancha decide, o componente obedece.
+
+   v2, direção declarada: "a página se lê como uma revista aberta — margem
+   viva à esquerda com o folio, imagem que sangra para fora da grade e coluna
+   de texto estreita correndo ao lado". Os três gestos são a margem de
+   prancha (globals.css), a sangria assimétrica e a vitrine escalonada.
    ========================================================================= */
 
 /* Âncoras param abaixo do cabeçalho fixo ao navegar pelos links */
@@ -8,66 +15,93 @@
 #como-funciona,
 #marcas,
 #title-sobre,
+#depoimentos,
 #contato {
-  scroll-margin-top: 88px;
+  scroll-margin-top: 92px;
 }
 
-/* ---------- Botões (.btn) ---------- */
+/* =========================================================================
+   BOTÕES
+   ========================================================================= */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-sm);
-  padding: 15px 30px;
+  gap: var(--spacing-md);
+  padding: 17px 34px;
   font-family: var(--font-sans-body);
-  font-size: 0.92rem;
+  font-size: 0.8125rem;
   font-weight: var(--font-weight-button);
-  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  line-height: 1;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: transform var(--transicao), background var(--transicao),
-    color var(--transicao), border-color var(--transicao);
   white-space: nowrap;
-}
-.btn:hover {
-  transform: translateY(-2px);
+  transition: transform var(--transicao), background var(--transicao),
+    color var(--transicao), border-color var(--transicao),
+    box-shadow var(--transicao);
 }
 
 .btn-primario {
   background: var(--color-accent);
-  color: var(--color-papel);
+  color: var(--color-on-accent);
 }
 .btn-primario:hover {
   background: var(--color-accent-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -14px rgba(201, 150, 47, 0.85);
 }
 
 .btn-secundario {
   background: transparent;
-  color: var(--color-tinta);
-  border-color: var(--color-tinta);
+  color: var(--color-text-primary);
+  border-color: var(--color-line-forte);
 }
 .btn-secundario:hover {
-  background: var(--color-tinta);
-  color: var(--color-papel);
+  background: var(--color-text-primary);
+  color: var(--color-ground);
+  transform: translateY(-2px);
+}
+
+/* Chamada grande do fecho da página */
+.btn-grande {
+  padding: 22px 52px;
+  font-size: 0.9375rem;
+}
+
+/* A seta do CTA anda quando o botão recebe o cursor — o convite fica
+   direcional em vez de decorativo. */
+.btn-seta {
+  display: inline-block;
+  transition: transform var(--transicao);
+}
+.btn:hover .btn-seta,
+.btn:focus-visible .btn-seta {
+  transform: translateX(4px);
 }
 
 /* =========================================================================
-   HEADER
+   CABEÇALHO — transparente sobre a capa, sólido depois da rolagem
    ========================================================================= */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(248, 242, 231, 0.97);
-  border-bottom: 1px solid var(--color-line);
-  backdrop-filter: saturate(1.4) blur(6px);
+  background: transparent;
+  border-bottom: 1px solid transparent;
+}
+.site-header.scrolled {
+  background: rgba(23, 17, 13, 0.92);
+  border-bottom-color: var(--color-line);
+  backdrop-filter: saturate(1.3) blur(10px);
 }
 
 .header-inner {
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: var(--spacing-xl);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -77,41 +111,49 @@
 .logo {
   display: flex;
   flex-direction: column;
-  line-height: 1.1;
+  line-height: 1;
+  gap: 6px;
 }
 .logo-nome {
   font-family: var(--font-serif-display);
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.375rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 .logo-sub {
-  font-size: 0.62rem;
+  font-size: 0.5625rem;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--color-accent-dark);
-  margin-top: 2px;
+  letter-spacing: var(--tracking-utilitario);
+  color: var(--color-accent);
 }
 
 .nav-principal {
   display: flex;
   align-items: center;
-  gap: 36px;
+  gap: var(--spacing-3xl);
 }
 .nav-principal ul {
   display: flex;
   gap: var(--spacing-2xl);
 }
-.nav-principal a {
-  font-size: 0.88rem;
-  font-weight: 500;
+.nav-principal ul a {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
   position: relative;
+  color: var(--color-text-secondary);
+  transition: color var(--transicao);
+}
+.nav-principal ul a:hover {
+  color: var(--color-text-primary);
 }
 .nav-principal ul a::after {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -6px;
+  bottom: -7px;
   height: 1px;
   background: var(--color-accent);
   transform: scaleX(0);
@@ -123,8 +165,8 @@
 }
 
 .nav-cta {
-  padding: 11px 22px;
-  font-size: 0.82rem;
+  padding: 13px 26px;
+  font-size: 0.6875rem;
 }
 
 .menu-toggle {
@@ -137,55 +179,134 @@
   background: none;
   border: none;
   cursor: pointer;
+  z-index: 2;
 }
 .menu-toggle span {
   display: block;
-  height: 2px;
-  background: var(--color-tinta);
+  height: 1px;
+  background: var(--color-text-primary);
   transition: transform var(--transicao), opacity var(--transicao);
 }
 .menu-toggle.ativo span:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
+  transform: translateY(6px) rotate(45deg);
 }
 .menu-toggle.ativo span:nth-child(2) {
   opacity: 0;
 }
 .menu-toggle.ativo span:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
+  transform: translateY(-6px) rotate(-45deg);
 }
 
 /* =========================================================================
-   HERO
+   CAPA (HERO) — "capa com dobra"
+   A fotografia sangra da dobra até a borda direita da tela; a coluna de tipo
+   ocupa a página esquerda; a palavra em itálico da manchete atravessa a
+   dobra e entra na foto. Abaixo de 1081px a dobra some e a capa volta a ser
+   sangria total com o tipo ancorado embaixo — que é o enquadramento certo
+   para o celular, de onde vem a maior parte do tráfego.
    ========================================================================= */
 .hero {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  align-items: stretch;
-  gap: 0;
+  align-content: end;
+  min-height: 100svh;
   padding: 0;
-  min-height: 92vh;
+  margin-top: -92px; /* a capa sobe por baixo do cabeçalho transparente */
+  overflow: hidden;
+  isolation: isolate;
 }
 
-.hero-texto {
+.hero-midia {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.hero-midia img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 62% 26%;
+}
+
+/* Véu em duas camadas: um degradê de baixo para o tipo e um lateral suave.
+   A foto é ensolarada, então o escurecimento precisa ser firme embaixo. */
+.hero-veu {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      to top,
+      var(--color-espresso) 0%,
+      rgba(23, 17, 13, 0.88) 22%,
+      rgba(23, 17, 13, 0.4) 48%,
+      rgba(23, 17, 13, 0.12) 72%,
+      rgba(23, 17, 13, 0.45) 100%
+    ),
+    /* Firma a coluna do tipo à esquerda e solta a modelo à direita. */
+    linear-gradient(
+      to right,
+      rgba(23, 17, 13, 0.82) 0%,
+      rgba(23, 17, 13, 0.45) 32%,
+      rgba(23, 17, 13, 0.08) 60%,
+      transparent 78%
+    );
+}
+
+/* A prancha da capa: folio na margem, tipo na coluna larga. */
+.hero-prancha {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding: 0 var(--spacing-xl) clamp(48px, 7vh, 88px);
+  display: grid;
+  grid-template-columns: var(--folio-largura) minmax(0, 1fr);
+  column-gap: var(--folio-gap);
+  align-items: end;
+}
+
+/* Na capa o folio não gruda: ele acompanha a coluna do tipo. */
+.hero .folio {
+  position: static;
+  max-height: none;
+  align-self: end;
+  padding-bottom: 6px;
+}
+
+.hero-conteudo {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 22px;
-  padding: var(--spacing-4xl) clamp(24px, 6vw, 80px);
+  align-items: flex-start;
+  gap: var(--spacing-xl);
 }
 
-.hero-texto .eyebrow {
-  margin-bottom: var(--spacing-xs);
+/* ---------- A manchete em escala de cartaz ----------
+   As linhas são explícitas: quebra controlada (nada de viúva no meio do
+   nome) e cada linha é a unidade da animação de entrada. */
+.hero-manchete {
+  max-width: none;
+  font-weight: 400;
 }
-
-.hero h1 {
-  font-size: clamp(2.6rem, 2rem + 2.6vw, 4rem);
-  max-width: 16ch;
+.hero-linha {
+  display: block;
+  /* A máscara de cada linha. O padding/margin negativo devolve o espaço dos
+     descendentes que o overflow cortaria. */
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+/* O fecho em itálico — a didone mostra o que sabe fazer, e é ele que
+   atravessa a dobra para dentro da fotografia. */
+.hero-linha--fecho {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-ouro);
 }
 
 .hero-sub {
-  font-size: 1.08rem;
-  max-width: 46ch;
+  font-size: var(--font-size-body-lg);
+  font-weight: 300;
+  max-width: 40ch;
   color: var(--color-text-secondary);
 }
 
@@ -200,243 +321,417 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  width: fit-content;
-  padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--color-line);
-  margin-top: 14px;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-text-muted);
+  transition: color var(--transicao);
+}
+.hero-insta:hover {
+  color: var(--color-text-primary);
 }
 .hero-insta img {
-  opacity: 0.85;
+  width: 15px;
+  height: 15px;
+  filter: brightness(0) invert(1);
+  opacity: 0.7;
 }
 
-.hero-imagem {
-  position: relative;
-  overflow: hidden;
-  min-height: 360px;
+/* ---------- A dobra (só onde há largura para ela) ---------- */
+@media (min-width: 1081px) {
+  .hero {
+    /* A coluna de tipo tem medida própria, em px: uma manchete de cartaz
+       precisa de largura previsível, não de fração de tela. */
+    --coluna-tipo: clamp(360px, 30vw, 460px);
+    /* A dobra sai da geometria real da prancha (margem + folio + gap +
+       coluna), e não de uma porcentagem chutada: assim ela cai sempre logo
+       depois do texto, em qualquer monitor. */
+    --dobra: calc(
+      var(--margem-prancha) + var(--folio-largura) + var(--folio-gap) +
+        var(--coluna-tipo) + var(--spacing-3xl)
+    );
+    align-content: center;
+  }
+  /* A fotografia começa na dobra e sangra até a borda direita da tela. */
+  .hero-midia {
+    left: var(--dobra);
+  }
+  /* Com a foto recuada, o véu só precisa acariciar a emenda e firmar a base. */
+  .hero-veu {
+    background: linear-gradient(
+        to right,
+        var(--color-espresso) 0%,
+        rgba(23, 17, 13, 0.62) 12%,
+        rgba(23, 17, 13, 0.1) 38%,
+        transparent 62%
+      ),
+      linear-gradient(to top, rgba(23, 17, 13, 0.7) 0%, transparent 42%);
+  }
+  /* O fio da dobra — a costura da revista. */
+  .hero-dobra {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    left: var(--dobra);
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      var(--color-line-forte) 24%,
+      var(--color-line-forte) 76%,
+      transparent 100%
+    );
+  }
+  .hero-prancha {
+    align-items: center;
+    padding-bottom: 0;
+  }
+  .hero-conteudo {
+    /* A coluna de texto para antes da dobra; só o fecho em itálico a cruza. */
+    max-width: var(--coluna-tipo);
+  }
+  .hero-manchete {
+    font-size: clamp(2.8rem, 1.2rem + 3.6vw, 4.6rem);
+  }
+  .hero-linha--fecho {
+    font-size: 1.16em;
+    white-space: nowrap;
+  }
 }
-.hero-imagem img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 60% 22%;
-}
-.hero-imagem::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(28, 24, 20, 0) 60%,
-    rgba(28, 24, 20, 0.28) 100%
-  );
+
+@media (max-width: 1080px) {
+  /* Sem dobra: a manchete volta a caber na medida do texto. */
+  .hero-dobra {
+    display: none;
+  }
 }
 
 /* =========================================================================
-   TENDÊNCIAS
+   FAIXA DE PROVA — as três razões para continuar lendo
+   Alinhada à grade da prancha: os valores caem na mesma coluna do conteúdo
+   das seções seguintes, e não soltos na largura cheia.
    ========================================================================= */
-.secao-tendencias {
-  background: var(--color-bg-secondary);
+.faixa-prova {
+  border-bottom: 1px solid var(--color-line);
+}
+.faixa-prova-inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  padding-left: calc(
+    var(--spacing-xl) + var(--folio-largura) + var(--folio-gap)
+  );
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-xl);
+}
+.faixa-prova-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: var(--spacing-xl);
+  border-left: 1px solid var(--color-line);
+}
+.faixa-prova-item:first-child {
+  border-left: none;
+  padding-left: 0;
+}
+.faixa-prova-valor {
+  font-family: var(--font-serif-display);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--color-accent);
+}
+.faixa-prova-rotulo {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-secondary);
 }
 
+/* =========================================================================
+   TENDÊNCIAS — a vitrine escalonada
+   Grade editorial de 12 colunas: larguras e alturas diferentes, com recuos
+   verticais. Um lookbook impresso nunca alinha seis fotos iguais.
+   ========================================================================= */
 .subtitulo-colecao {
   font-family: var(--font-serif-display);
   font-style: italic;
-  font-size: 1.3rem;
-  color: var(--color-accent-dark);
+  font-size: 1.5rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
 }
 
 .grade-tendencias {
-  max-width: var(--container-max);
-  margin: 0 auto;
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-2xl);
 }
 
 .look-card {
   position: relative;
-  background: var(--color-papel);
-  border-radius: var(--radius-sm);
-  overflow: visible;
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 600ms ease, transform 600ms ease;
-}
-.look-card.em-vista {
-  opacity: 1;
-  transform: translateY(0);
+  display: flex;
+  flex-direction: column;
+  align-self: start;
 }
 
 .look-card-imagem {
   position: relative;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
-  border-radius: var(--radius-sm);
+  background: var(--color-surface);
 }
 .look-card-imagem img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 700ms ease;
 }
 .look-card:hover .look-card-imagem img {
-  transform: scale(1.045);
+  transform: scale(1.05);
 }
 .look-card-imagem img.imagem-hover {
   position: absolute;
   inset: 0;
   opacity: 0;
 }
-.look-card:hover .imagem-hover {
+/* Só troca de ângulo quando existe uma segunda foto (.look-card--duplo). */
+.look-card--duplo:hover .imagem-hover {
   opacity: 1;
 }
-.look-card:hover .imagem-base {
+.look-card--duplo:hover .imagem-base {
   opacity: 0;
 }
 
-.look-card-legenda {
-  padding: var(--spacing-lg) var(--spacing-xs) 0;
+/* Convite que sobe da base da foto — é ele que transforma o card em clique. */
+.look-card-convite {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: var(--spacing-3xl) var(--spacing-lg) var(--spacing-lg);
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: baseline;
   gap: var(--spacing-sm);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-areia);
+  background: linear-gradient(to top, rgba(23, 17, 13, 0.92), transparent);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity var(--transicao), transform var(--transicao);
+}
+.look-card:hover .look-card-convite,
+.look-card:focus-visible .look-card-convite {
+  opacity: 1;
+  transform: none;
+}
+.look-card-convite span:last-child {
+  color: var(--color-ouro);
+}
+
+/* A legenda vira legenda de prancha: número em didone na margem, título ao
+   lado — a mesma lógica do folio, em escala de card. */
+.look-card-legenda {
+  padding-top: var(--spacing-lg);
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-lg);
+  border-top: 1px solid var(--color-line);
+  margin-top: var(--spacing-lg);
+}
+.look-card-indice {
+  font-family: var(--font-serif-display);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
 }
 .look-card-titulo {
   font-family: var(--font-serif-display);
-  font-size: 1.18rem;
-}
-.look-card-indice {
-  font-size: 0.74rem;
-  color: var(--color-accent-dark);
-  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--color-text-primary);
 }
 
-/* Etiqueta estilo "tag de roupa" — assinatura visual da marca */
+/* Etiqueta de arara — a assinatura da marca, herdada do site anterior */
 .look-tag {
   position: absolute;
-  top: -10px;
-  right: 14px;
+  top: 14px;
+  left: 14px;
   z-index: 3;
-  background: var(--color-papel);
-  color: var(--color-tinta);
-  font-size: 0.66rem;
-  font-weight: 700;
+  background: var(--color-areia);
+  color: var(--color-espresso);
+  font-size: 0.5625rem;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding: 7px 12px 7px 16px;
-  transform: rotate(5deg);
-  box-shadow: var(--shadow-xl);
-  border: 1px solid var(--color-line);
+  letter-spacing: 0.16em;
+  padding: 8px 14px 8px 28px;
+  box-shadow: var(--shadow-md);
 }
+/* O ilhó da etiqueta. Precisa de folga até o texto, senão lê como a letra O. */
 .look-tag::before {
   content: "";
   position: absolute;
-  left: 6px;
+  left: 11px;
   top: 50%;
   transform: translateY(-50%);
-  width: 5px;
-  height: 5px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  border: 1px solid var(--color-tinta);
-  background: var(--color-bg-secondary);
+  border: 1px solid rgba(23, 17, 13, 0.4);
 }
-.look-tag::after {
-  content: "";
-  position: absolute;
-  top: -7px;
-  left: 8px;
-  width: 1px;
-  height: 9px;
-  background: var(--color-tinta);
-  opacity: 0.5;
+
+/* A vitrine escalonada só existe onde há largura para ela ler como prancha.
+   Abaixo disso vira coluna única com recuo alternado (ver responsivo). */
+@media (min-width: 901px) {
+  .grade-tendencias {
+    grid-template-columns: repeat(12, 1fr);
+    column-gap: var(--spacing-2xl);
+    row-gap: clamp(var(--spacing-2xl), 4vw, var(--spacing-5xl));
+  }
+  /* Só recuos positivos: nada se sobrepõe, nada sai da grade, nada some. */
+  .grade-tendencias .look-card:nth-child(1) {
+    grid-area: 1 / 1 / auto / span 5;
+  }
+  .grade-tendencias .look-card:nth-child(2) {
+    grid-area: 1 / 8 / auto / span 4;
+    margin-top: clamp(40px, 6vw, 104px);
+  }
+  .grade-tendencias .look-card:nth-child(3) {
+    grid-area: 2 / 2 / auto / span 4;
+  }
+  .grade-tendencias .look-card:nth-child(4) {
+    grid-area: 2 / 7 / auto / span 5;
+    margin-top: clamp(32px, 5vw, 88px);
+  }
+  .grade-tendencias .look-card:nth-child(5) {
+    grid-area: 3 / 1 / auto / span 4;
+  }
+  .grade-tendencias .look-card:nth-child(6) {
+    grid-area: 3 / 6 / auto / span 4;
+    margin-top: clamp(28px, 4vw, 72px);
+  }
+  /* Do sétimo em diante (o catálogo é editável pelo /admin) a grade volta a
+     ser regular de três — melhor previsível do que quebrado. */
+  .grade-tendencias .look-card:nth-child(n + 7) {
+    grid-column: span 4;
+    margin-top: 0;
+  }
 }
 
 .link-colecao {
-  max-width: var(--container-max);
-  margin: var(--spacing-3xl) auto 0;
-  text-align: center;
-  font-size: 0.95rem;
+  width: 100%;
+  margin: var(--spacing-5xl) 0 0;
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid var(--color-line);
+  font-size: var(--font-size-body-lg);
+  font-weight: 300;
+  color: var(--color-text-secondary);
 }
 .link-colecao a {
-  color: var(--color-accent-dark);
-  font-weight: 600;
-  border-bottom: 1px solid var(--color-accent-dark);
+  color: var(--color-accent);
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+  transition: opacity var(--transicao);
+}
+.link-colecao a:hover {
+  opacity: 0.75;
 }
 
 /* =========================================================================
-   COMO FUNCIONA
+   COMO FUNCIONA — a prancha ensolarada
    ========================================================================= */
-.secao-como-funciona h2 {
-  max-width: var(--container-max);
-  margin: 0 auto var(--spacing-5xl);
-  text-align: left;
-}
-
 .passos {
-  max-width: var(--container-max);
-  margin: 0 auto;
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-3xl);
+  gap: var(--spacing-4xl);
 }
 
+/* A numeração fica porque a ordem importa de verdade: agendar vem antes da
+   curadoria, que vem antes do envio. O degrau escalonado repete, em escala
+   pequena, o gesto da vitrine. */
 .passo {
-  border-top: 1px solid var(--color-line);
+  border-top: 1px solid var(--color-line-forte);
   padding-top: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+@media (min-width: 901px) {
+  .passo:nth-child(2) {
+    margin-top: var(--spacing-3xl);
+  }
+  .passo:nth-child(3) {
+    margin-top: var(--spacing-6xl);
+  }
 }
 
 .passo-numero {
   font-family: var(--font-serif-display);
-  font-size: 1.6rem;
-  color: var(--color-support);
-  display: block;
-  margin-bottom: 18px;
+  font-size: 2.25rem;
+  line-height: 1;
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
 }
 
 .passo h3 {
-  font-size: 1.3rem;
-  margin-bottom: 10px;
+  font-size: var(--font-size-heading-md);
 }
 
 .passo p {
   color: var(--color-text-secondary);
-  font-size: 0.96rem;
+  font-size: var(--font-size-body-md);
+  font-weight: 300;
+  max-width: 34ch;
 }
 
 /* =========================================================================
-   MARCAS — carrossel
+   MARCAS — a arara passando
    ========================================================================= */
+/* Os logos das marcas vêm em JPG com fundo branco. Aproximar a prancha do
+   branco faz a caixa de cada arquivo desaparecer sem recortar imagem. */
 .secao-marcas {
-  background: #ffffff;
+  --color-ground: var(--color-areia-clara);
+  padding-top: var(--spacing-5xl);
+  padding-bottom: var(--spacing-5xl);
 }
 .secao-marcas h2 {
-  max-width: var(--container-max);
-  margin: 0 auto 44px;
-  font-size: clamp(1.7rem, 1.4rem + 1.2vw, 2.2rem);
-  text-align: center;
+  font-size: var(--font-size-display-sm);
 }
 
+/* O carrossel sangra para fora da coluna da prancha até a borda da tela:
+   a arara não termina na margem, ela continua passando. */
 .carrossel-marcas {
+  /* A máscara isola o grupo de composição; sem um fundo aqui dentro o
+     mix-blend-mode dos logos não teria contra o que multiplicar. */
+  background: var(--color-ground);
   overflow: hidden;
+  margin-right: calc(-1 * var(--margem-prancha));
   -webkit-mask-image: linear-gradient(
     90deg,
-    transparent,
-    #000 10%,
-    #000 90%,
-    transparent
+    #000 0%,
+    #000 82%,
+    transparent 100%
   );
-  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, #000 0%, #000 82%, transparent 100%);
 }
 
 .marcas-imgs {
   display: flex;
   align-items: center;
-  gap: var(--spacing-5xl);
+  gap: var(--spacing-6xl);
   width: max-content;
-  animation: rolar-marcas 36s linear infinite;
-  will-change: transform;
+  /* O fundo precisa estar nesta camada: é contra ela que os logos multiplicam.
+     Sem `will-change` de propósito — ele promoveria o trilho a uma camada
+     isolada e o multiply deixaria de enxergar este fundo. */
+  background: var(--color-ground);
+  animation: rolar-marcas 42s linear infinite;
 }
 .marcas-imgs:hover {
   animation-play-state: paused;
@@ -452,11 +747,13 @@
 }
 
 img.marca {
-  height: 80px;
+  height: 72px;
   width: auto;
   object-fit: contain;
-  filter: grayscale(1) opacity(0.6);
-  transition: filter var(--transicao);
+  mix-blend-mode: multiply;
+  /* opacidade via filter: a propriedade `opacity` criaria um contexto de
+     empilhamento e anularia o multiply. */
+  filter: grayscale(1) opacity(0.55);
   flex-shrink: 0;
 }
 img.marca:hover {
@@ -464,113 +761,200 @@ img.marca:hover {
 }
 
 /* =========================================================================
-   SOBRE
+   SOBRE — o retrato em sangria
+   A foto escapa da coluna da prancha até a borda esquerda da tela; o texto
+   fica numa coluna estreita à direita. É a página dupla da revista.
    ========================================================================= */
-.secao-sobre {
-  background: var(--color-bg-secondary);
-}
-
-.secao-sobre > h2 {
-  max-width: var(--container-max);
-  margin: 0 auto var(--spacing-5xl);
-}
-
 .sobre-conteudo {
-  max-width: var(--container-max);
-  margin: 0 auto;
+  width: 100%;
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 72px;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+  gap: clamp(40px, 6vw, 88px);
   align-items: center;
 }
 
 .sobre-foto {
-  display: flex;
-  justify-content: center;
+  position: relative;
+}
+/* O quadro do retrato: é ele que recebe a cortina e é ele que segura o
+   parallax — a foto se move DENTRO do próprio quadro, sem vazar. */
+.sobre-foto-quadro {
+  display: block;
+  overflow: hidden;
+}
+.sobre-foto img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center 20%;
+}
+/* Moldura deslocada — o enquadramento de uma prancha impressa. */
+.sobre-foto::after {
+  content: "";
+  position: absolute;
+  inset: 18px -18px -18px 18px;
+  border: 1px solid var(--color-accent);
+  z-index: -1;
 }
 
-.sobre-foto img {
-  border-radius: 50%;
-  box-shadow: var(--shadow-xl), 0 0 0 5px var(--color-bg-secondary),
-    0 0 0 7px var(--color-line);
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  object-position: center 15%;
-  width: clamp(180px, 22vw, 260px);
-  flex-shrink: 0;
+@media (min-width: 901px) {
+  /* A sangria à esquerda: a foto sai da coluna, passa por baixo do folio e
+     encosta na borda da tela. `calc` sobre a folga real do container — nada
+     de valor chutado que quebra em telas largas. */
+  .sobre-foto {
+    margin-left: calc(
+      -1 *
+        (var(--margem-prancha) + var(--folio-largura) + var(--folio-gap))
+    );
+  }
+  .sobre-foto img {
+    aspect-ratio: 5 / 6;
+  }
 }
 
 .sobre-texto {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
-}
-
-.sobre-texto > .eyebrow {
-  margin-bottom: -6px;
+  align-items: flex-start;
 }
 
 .sobre-nome {
   font-family: var(--font-serif-display);
-  font-size: clamp(2.2rem, 1.8rem + 1vw, 3rem);
-  line-height: 1.05;
-  padding-bottom: var(--spacing-xl);
-  border-bottom: 1px solid var(--color-line);
+  font-size: var(--font-size-display-md);
+  line-height: 1.02;
+  letter-spacing: var(--letter-spacing-display);
 }
 
 .sobre-texto p:not(.sobre-nome):not(.eyebrow) {
   color: var(--color-text-secondary);
-  font-size: 1.02rem;
-  line-height: 1.78;
-  max-width: 52ch;
+  font-size: var(--font-size-body-md);
+  font-weight: 300;
+  line-height: 1.75;
+  max-width: 46ch;
 }
 
-.sobre-texto .btn {
-  margin-top: 6px;
-  width: fit-content;
+/* Citação — a frase que ela mesma assinaria. */
+.sobre-citacao {
+  font-family: var(--font-serif-display);
+  font-style: italic;
+  font-size: 1.375rem;
+  line-height: 1.4;
+  color: var(--color-text-primary) !important;
+  border-left: 1px solid var(--color-accent);
+  padding-left: var(--spacing-xl);
+  max-width: 38ch !important;
 }
 
 /* =========================================================================
-   CONTATO — seção invertida (assinatura tonal)
+   DEPOIMENTOS — a prova social
+   A seção inteira só existe quando `data/depoimentos.json` tem conteúdo
+   real. Nada aqui inventa lojista, loja ou frase.
+   ========================================================================= */
+.grade-depoimentos {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: clamp(var(--spacing-2xl), 3vw, var(--spacing-4xl));
+}
+
+.depoimento {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  border-top: 1px solid var(--color-line-forte);
+  padding-top: var(--spacing-xl);
+}
+/* O mesmo degrau escalonado das outras pranchas. */
+@media (min-width: 901px) {
+  .grade-depoimentos .depoimento:nth-child(even) {
+    margin-top: var(--spacing-3xl);
+  }
+}
+
+.depoimento-aspas {
+  font-family: var(--font-serif-display);
+  font-size: 2.5rem;
+  line-height: 0.7;
+  color: var(--color-accent);
+}
+
+.depoimento-texto {
+  font-family: var(--font-serif-display);
+  font-style: italic;
+  font-size: 1.1875rem;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+.depoimento-assinatura {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: auto;
+}
+.depoimento-nome {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-primary);
+}
+.depoimento-loja {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-muted);
+}
+
+/* =========================================================================
+   CONTATO — o fecho, prancha escura e ladrilhada
+   Sai o bloco centralizado: o fecho passa a ler como as outras pranchas,
+   alinhado à esquerda contra a margem do folio.
    ========================================================================= */
 .secao-contato {
-  background: var(--color-bg-dark);
-  color: var(--color-papel);
-  text-align: center;
+  padding-top: var(--spacing-7xl);
+  padding-bottom: var(--spacing-7xl);
+}
+.secao-contato .cabecalho-secao {
+  grid-template-columns: 1fr;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-2xl);
 }
 .secao-contato h2 {
-  margin-bottom: 14px;
+  max-width: 14ch;
 }
-.secao-contato p {
-  color: rgba(248, 242, 231, 0.72);
-  font-size: 1.05rem;
-  max-width: 50ch;
-  margin: 0 auto;
+.secao-contato h2 em {
+  font-style: italic;
+  color: var(--color-ouro);
+}
+.contato-nota {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-body-lg);
+  font-weight: 300;
+  max-width: 42ch;
 }
 .contato-acoes {
-  margin-top: var(--spacing-2xl);
+  margin-top: var(--spacing-3xl);
   display: flex;
   gap: var(--spacing-lg);
-  justify-content: center;
   flex-wrap: wrap;
 }
-.secao-contato .btn-secundario {
-  color: var(--color-papel);
-  border-color: var(--color-line-light);
-}
-.secao-contato .btn-secundario:hover {
-  background: var(--color-papel);
-  color: var(--color-tinta);
+.contato-local {
+  margin-top: var(--spacing-3xl);
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid var(--color-line);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-utilitario);
+  color: var(--color-text-muted);
 }
 
 /* =========================================================================
-   FOOTER
+   RODAPÉ
    ========================================================================= */
 .site-footer {
-  background: var(--color-bg-dark);
-  color: rgba(248, 242, 231, 0.6);
-  padding: 28px var(--spacing-xl) 36px;
-  border-top: 1px solid rgba(248, 242, 231, 0.1);
+  padding: var(--spacing-2xl) var(--spacing-xl);
+  border-top: 1px solid var(--color-line);
 }
 .footer-inner {
   max-width: var(--container-max);
@@ -580,52 +964,75 @@ img.marca:hover {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--spacing-md);
-  font-size: 0.82rem;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-muted);
 }
 .footer-marca {
   font-family: var(--font-serif-display);
-  color: var(--color-papel);
+  color: var(--color-text-primary);
   font-size: 1rem;
+  text-transform: none;
+  letter-spacing: 0.01em;
 }
 .footer-icones {
   display: flex;
   gap: var(--spacing-lg);
 }
 .footer-icones img.icone {
-  width: 18px;
-  height: 18px;
-  filter: invert(1);
-  opacity: 0.7;
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) invert(1);
+  opacity: 0.55;
   transition: opacity var(--transicao);
 }
 .footer-icones a:hover img.icone {
   opacity: 1;
 }
+
 /* =========================================================================
-   BOTÃO FLUTUANTE WHATSAPP
+   BOTÃO FLUTUANTE DO WHATSAPP — com rótulo, porque um ícone sozinho pede
+   menos clique do que um convite escrito
    ========================================================================= */
 .whatsapp-popup {
   position: fixed;
   right: 22px;
   bottom: 22px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: #25d366;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 12px 28px -8px rgba(28, 24, 20, 0.5);
   z-index: 90;
-  transition: transform var(--transicao);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: 15px 24px 15px 20px;
+  border-radius: 999px;
+  background: #1fa855;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  box-shadow: 0 16px 32px -12px rgba(10, 7, 5, 0.7);
+  transition: transform var(--transicao), background var(--transicao),
+    box-shadow var(--transicao);
 }
-.whatsapp-popup:hover {
-  transform: scale(1.08);
+.whatsapp-popup:hover,
+.whatsapp-popup:focus-visible {
+  background: #25d366;
+  transform: translateY(-3px);
+  box-shadow: 0 22px 40px -14px rgba(10, 7, 5, 0.78);
 }
 .whatsapp-popup img {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   filter: brightness(0) invert(1);
+  flex-shrink: 0;
+  transition: transform var(--transicao);
+}
+/* O ícone dá um passo à frente: o botão responde ao toque em vez de só mudar
+   de cor. Um gesto único, sem laço. */
+.whatsapp-popup:hover img,
+.whatsapp-popup:focus-visible img {
+  transform: translateX(2px) rotate(-6deg);
 }
 
 /* Consentimento: nenhum terceiro é carregado antes da escolha explícita. */
@@ -642,19 +1049,20 @@ img.marca:hover {
   width: min(620px, calc(100% - 40px));
   margin-inline: auto;
   padding: var(--spacing-lg) var(--spacing-xl);
-  border: 1px solid rgba(248, 242, 231, 0.15);
-  border-radius: var(--radius-lg);
-  background: var(--color-tinta);
-  color: var(--color-papel);
+  border: 1px solid rgba(237, 229, 214, 0.16);
+  border-radius: var(--radius-md);
+  background: var(--color-espresso-alto);
+  color: var(--color-areia);
   box-shadow: var(--shadow-lg);
 }
 .cookie-banner p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 300;
   line-height: 1.55;
 }
 .cookie-banner a {
-  color: var(--color-camel);
+  color: var(--color-ouro);
   text-decoration: underline;
 }
 .cookie-banner-botoes {
@@ -663,64 +1071,110 @@ img.marca:hover {
   gap: var(--spacing-sm);
 }
 .cookie-banner-botoes .ds-button--outline {
-  border-color: rgba(248, 242, 231, 0.5);
-  color: var(--color-papel);
+  border-color: rgba(237, 229, 214, 0.5);
+  color: var(--color-areia);
 }
 
 /* =========================================================================
    RESPONSIVO
    ========================================================================= */
-@media (max-width: 980px) {
+@media (max-width: 1080px) {
+  .passos {
+    gap: var(--spacing-2xl);
+  }
+}
+
+@media (max-width: 900px) {
   .hero {
-    grid-template-columns: 1fr;
-    min-height: auto;
+    min-height: 92svh;
   }
-  .hero-imagem {
-    min-height: 380px;
-    order: -1;
+  /* A capa também deita o folio: sem isso ele ficaria espremido numa coluna
+     de 64px enquanto o próprio folio já virou horizontal. */
+  .hero-prancha {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--spacing-lg);
   }
-  .hero-texto {
-    padding: var(--spacing-3xl) var(--spacing-xl);
+  .hero .folio {
+    align-self: start;
+    padding-bottom: 0;
   }
 
+  /* A vitrine vira coluna única com recuo alternado: o ritmo editorial
+     sobrevive sem scroll lateral e nenhum look fica escondido. */
   .grade-tendencias {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    grid-template-columns: 1fr;
+    row-gap: var(--spacing-4xl);
   }
+  .grade-tendencias .look-card:nth-child(odd) {
+    margin-right: clamp(0px, 9vw, 72px);
+  }
+  .grade-tendencias .look-card:nth-child(even) {
+    margin-left: clamp(0px, 9vw, 72px);
+  }
+
   .passos {
     grid-template-columns: 1fr;
     gap: var(--spacing-2xl);
   }
   .sobre-conteudo {
     grid-template-columns: 1fr;
-    gap: 36px;
+    gap: var(--spacing-3xl);
   }
-  .sobre-foto img {
-    width: clamp(160px, 50vw, 220px);
+  .sobre-foto {
+    max-width: 380px;
+  }
+  /* A moldura deslocada não cabe sem vazar na largura estreita. */
+  .sobre-foto::after {
+    display: none;
+  }
+  .faixa-prova-inner {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+    padding-left: var(--spacing-xl);
+  }
+  .faixa-prova-item {
+    border-left: none;
+    padding-left: 0;
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--spacing-md);
+  }
+  .faixa-prova-valor {
+    font-size: 1.125rem;
+  }
+  .carrossel-marcas {
+    margin-right: 0;
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 10%,
+      #000 90%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 10%,
+      #000 90%,
+      transparent
+    );
   }
 }
 
 @media (max-width: 760px) {
-  .section {
-    padding: var(--spacing-4xl) 20px;
-  }
-
   .menu-toggle {
     display: flex;
   }
 
   .nav-principal {
     position: fixed;
-    top: 0;
-    right: 0;
-    left: 30%;
-    height: 100vh;
+    inset: 0 0 0 25%;
     height: 100dvh;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
     gap: var(--spacing-3xl);
-    background: var(--color-tinta);
+    background: var(--color-espresso);
     padding: var(--spacing-3xl) var(--spacing-2xl);
     transform: translateX(100%);
     transition: transform var(--transicao);
@@ -731,26 +1185,23 @@ img.marca:hover {
   }
   .nav-principal ul {
     flex-direction: column;
-    gap: 26px;
+    gap: var(--spacing-xl);
   }
-  .nav-principal a {
-    color: var(--color-papel);
-    font-size: 1.1rem;
-  }
-  .nav-cta {
-    background: var(--color-accent);
-    color: var(--color-papel);
+  .nav-principal ul a {
+    font-size: 0.8125rem;
   }
 
-  .grade-tendencias {
-    grid-template-columns: 1fr;
-    max-width: 420px;
-    margin-inline: auto;
+  .hero-prancha {
+    padding-left: 20px;
+    padding-right: 20px;
   }
-  .cabecalho-secao {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
+  .hero-conteudo {
+    gap: var(--spacing-lg);
+  }
+  .whatsapp-popup {
+    right: 16px;
+    bottom: 16px;
+    padding: 14px 20px 14px 17px;
   }
 
   .footer-inner {
@@ -767,8 +1218,28 @@ img.marca:hover {
   }
 }
 
-@media (max-width: 420px) {
-  .hero h1 {
-    max-width: none;
+@media (max-width: 520px) {
+  .grade-tendencias .look-card:nth-child(odd),
+  .grade-tendencias .look-card:nth-child(even) {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* O CTA grande não cabe em 350px com o padding do desktop: em vez de
+     vazar a margem, ele ocupa a largura toda — que no celular ainda é a
+     melhor área de toque. */
+  .btn-grande {
+    padding: 20px 28px;
+    font-size: 0.8125rem;
+  }
+  .contato-acoes {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .whatsapp-popup span {
+    display: none;
+  }
+  .whatsapp-popup {
+    padding: 16px;
   }
 }

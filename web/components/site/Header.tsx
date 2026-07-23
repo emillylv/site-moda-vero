@@ -22,8 +22,28 @@ export function Header() {
     return () => window.removeEventListener("scroll", aoRolar);
   }, []);
 
+  // Com o menu aberto: Esc fecha e a página atrás não rola.
+  // Sem isso o painel fica preso e o fundo desliza junto no celular.
+  useEffect(() => {
+    if (!aberto) return;
+
+    const aoTeclar = (evento: KeyboardEvent) => {
+      if (evento.key === "Escape") setAberto(false);
+    };
+
+    const overflowAnterior = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", aoTeclar);
+
+    return () => {
+      document.body.style.overflow = overflowAnterior;
+      document.removeEventListener("keydown", aoTeclar);
+    };
+  }, [aberto]);
+
   return (
-    <header className={`site-header${scrolled ? " scrolled" : ""}`}>
+    // O cabeçalho vive sobre a capa escura e continua escuro depois dela.
+    <header className={`site-header tom-escuro${scrolled ? " scrolled" : ""}`}>
       <div className="header-inner">
         <a href="#topo" className="logo" onClick={() => setAberto(false)}>
           <span className="logo-nome">Verônica Chaves</span>

@@ -3,7 +3,7 @@ import { LINKS } from "@/lib/links";
 export function Footer() {
   const ano = new Date().getFullYear();
   return (
-    <footer className="site-footer">
+    <footer className="site-footer tom-escuro">
       <div className="footer-inner">
         <p className="footer-marca">Verônica Chaves · {ano}</p>
         <p className="footer-local">Belo Horizonte, MG</p>

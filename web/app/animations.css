@@ -1,19 +1,36 @@
 /* =========================================================================
-   MODA BH VERO — sistema de animações
-   Movimento discreto e editorial (alinhado ao design system):
-   fades suaves, deslizes curtos, escalas sutis. 300–800ms, ease-out.
-   Progressive enhancement: os estados ocultos só valem quando o JS ativa
-   `.reveal-enabled` no <html>; sem JS, tudo aparece normalmente.
+   MODA BH VERO — sistema de movimento (v2)
+
+   O fade-up genérico saiu: ele é o default de template e não significa nada
+   dentro do conceito. No lugar entrou um vocabulário que fala de papel:
+
+   1. CORTINA  — a prancha é descoberta de baixo para cima por uma máscara
+                 (`clip-path`), como uma folha saindo do envelope.
+   2. LINHA    — a manchete entra linha a linha, cada uma subindo por dentro
+                 da própria máscara, como tipo caindo na página.
+   3. FOLIO    — o fio da margem cresce e o número da prancha conta até o
+                 valor final quando a seção entra em quadro. Conta uma vez.
+   4. QUADRO   — parallax curto DENTRO do próprio quadro da foto, via
+                 animação guiada por scroll (CSS puro, sem biblioteca e sem
+                 ouvinte de scroll em JS).
+
+   Regras mantidas: nada pisca, nada repete em laço eterno, tudo tem versão
+   estática sob `prefers-reduced-motion`, nada causa layout shift e o
+   movimento é só `transform`/`opacity`. Progressive enhancement: os estados
+   ocultos só valem quando o JS marca `.reveal-enabled` no <html>.
    ========================================================================= */
 
 :root {
   --ease-suave: cubic-bezier(0.22, 1, 0.36, 1);
   --reveal-dist: 26px;
-  --reveal-dur: 720ms;
+  --reveal-dur: 780ms;
+  --cortina-dur: 1000ms;
   --stagger: 90ms;
 }
 
-/* ---------- Scroll reveal ---------- */
+/* =========================================================================
+   1. REVEAL — base e variações
+   ========================================================================= */
 .reveal-enabled .reveal {
   opacity: 0;
   transform: translateY(var(--reveal-dist));
@@ -43,6 +60,33 @@
   transform: none;
 }
 
+/* ---------- A cortina ----------
+   Para blocos de imagem. A máscara sobe e descobre a prancha; a foto ainda
+   recua um fio de escala por dentro, então a imagem parece assentar no
+   papel em vez de aparecer. Sem deslocamento de layout: o `clip-path` não
+   tira o elemento do fluxo.
+
+   ATENÇÃO — o `clip-path` fica na IMAGEM, nunca no elemento observado.
+   O IntersectionObserver considera um elemento totalmente recortado como
+   fora de vista: se a cortina estivesse no próprio `.reveal`, ele nunca
+   receberia `is-visible` e a foto ficaria escondida para sempre. */
+.reveal-enabled .reveal--cortina {
+  opacity: 1;
+  transform: none;
+}
+.reveal-enabled .reveal--cortina img {
+  clip-path: inset(0 0 100% 0);
+  transform: scale(1.06);
+  transition: clip-path var(--cortina-dur) var(--ease-suave),
+    transform calc(var(--cortina-dur) + 300ms) var(--ease-suave);
+  transition-delay: var(--rd, 0ms);
+  will-change: clip-path, transform;
+}
+.reveal-enabled .reveal--cortina.is-visible img {
+  clip-path: inset(0 0 0 0);
+  transform: none;
+}
+
 /* Stagger para grupos (delays por posição) */
 .reveal-enabled .stagger > *:nth-child(1) { --rd: 0ms; }
 .reveal-enabled .stagger > *:nth-child(2) { --rd: calc(var(--stagger) * 1); }
@@ -54,101 +98,247 @@
 .reveal-enabled .stagger > *:nth-child(8) { --rd: calc(var(--stagger) * 7); }
 .reveal-enabled .stagger > *:nth-child(n + 9) { --rd: calc(var(--stagger) * 8); }
 
-/* Evita scroll horizontal durante os reveals com deslocamento lateral */
-.secao-sobre {
+/* Evita barra horizontal durante os reveals com deslocamento lateral */
+.secao-sobre,
+.secao-como-funciona {
   overflow: hidden;
 }
 
-/* ---------- Entrada do hero (no load, acima da dobra) ---------- */
-@keyframes hero-in {
+/* Em tela estreita o reveal lateral vira vertical. 26px de deslocamento
+   horizontal numa coluna de 350px empurram o bloco para fora da margem —
+   melhor tratar a causa do que confiar no `overflow-x: hidden` do body. */
+@media (max-width: 760px) {
+  .reveal-enabled .reveal--left,
+  .reveal-enabled .reveal--right {
+    transform: translateY(var(--reveal-dist));
+  }
+}
+
+/* =========================================================================
+   2. ABERTURA DA CAPA
+   A manchete entra linha a linha por dentro da máscara de cada linha; o
+   resto da coluna sobe em cascata; a fotografia recua do zoom. Um plano de
+   abertura só, no carregamento, sem laço.
+   ========================================================================= */
+@keyframes capa-tipo-in {
   from {
     opacity: 0;
-    transform: translateY(22px);
+    transform: translateY(26px);
   }
   to {
     opacity: 1;
     transform: none;
   }
 }
-@keyframes hero-imagem-in {
+@keyframes capa-foto-in {
   from {
     opacity: 0;
-    transform: scale(1.06);
+    transform: scale(1.09);
   }
   to {
     opacity: 1;
     transform: scale(1);
   }
 }
+@keyframes manchete-linha {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes fio-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 
-.hero-texto > * {
+.hero-conteudo > * {
   opacity: 0;
-  animation: hero-in 820ms var(--ease-suave) forwards;
+  animation: capa-tipo-in 900ms var(--ease-suave) forwards;
 }
-.hero-texto > *:nth-child(1) { animation-delay: 120ms; }
-.hero-texto > *:nth-child(2) { animation-delay: 210ms; }
-.hero-texto > *:nth-child(3) { animation-delay: 300ms; }
-.hero-texto > *:nth-child(4) { animation-delay: 390ms; }
-.hero-texto > *:nth-child(5) { animation-delay: 480ms; }
+.hero-conteudo > *:nth-child(1) { animation-delay: 260ms; }
+.hero-conteudo > *:nth-child(2) { animation-delay: 360ms; }
+.hero-conteudo > *:nth-child(3) { animation-delay: 460ms; }
+.hero-conteudo > *:nth-child(4) { animation-delay: 560ms; }
+.hero-conteudo > *:nth-child(5) { animation-delay: 660ms; }
 
-.hero-imagem img {
-  animation: hero-imagem-in 1100ms var(--ease-suave) both;
+/* A manchete não sobe inteira: quem se move são as linhas, por dentro das
+   próprias máscaras. O h1 em si fica parado e visível. */
+.hero-conteudo > .hero-manchete {
+  opacity: 1;
+  animation: none;
+}
+.hero-manchete .hero-linha > span {
+  display: block;
+  transform: translateY(105%);
+  animation: manchete-linha 980ms var(--ease-suave) forwards;
+}
+.hero-manchete .hero-linha:nth-child(1) > span { animation-delay: 240ms; }
+.hero-manchete .hero-linha:nth-child(2) > span { animation-delay: 340ms; }
+.hero-manchete .hero-linha:nth-child(3) > span { animation-delay: 440ms; }
+.hero-manchete .hero-linha:nth-child(4) > span { animation-delay: 560ms; }
+
+.hero-midia img {
+  animation: capa-foto-in 1600ms var(--ease-suave) both;
 }
 
-/* ---------- Look cards: fade-up com stagger (revela via .em-vista) ---------- */
-.look-card {
+/* O fio da dobra desce como uma costura sendo puxada. */
+.hero-dobra {
+  transform-origin: top;
+  animation: dobra-in 1100ms var(--ease-suave) 700ms both;
+}
+@keyframes dobra-in {
+  from {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.hero .folio {
+  animation: fio-in 900ms var(--ease-suave) 820ms both;
+}
+
+/* =========================================================================
+   3. FOLIO — o fio cresce, o número conta
+   O contador em si é feito em ScrollReveal.tsx (troca de textContent com
+   largura travada em 2ch, então não empurra nada).
+   ========================================================================= */
+.reveal-enabled .folio-fio {
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 900ms var(--ease-suave) 120ms;
+}
+.reveal-enabled .folio.is-visible .folio-fio {
+  transform: scaleY(1);
+}
+
+.reveal-enabled .folio-rotulo,
+.reveal-enabled .folio-numero {
+  opacity: 0;
+  transition: opacity 700ms var(--ease-suave) 200ms;
+}
+.reveal-enabled .folio.is-visible .folio-rotulo,
+.reveal-enabled .folio.is-visible .folio-numero {
+  opacity: 1;
+}
+
+/* Deitado no celular, o fio cresce para a direita. */
+@media (max-width: 900px) {
+  .reveal-enabled .folio-fio {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  .reveal-enabled .folio.is-visible .folio-fio {
+    transform: scaleX(1);
+  }
+}
+
+/* =========================================================================
+   4. PRANCHA DE TENDÊNCIAS
+   ========================================================================= */
+/* Guardado por `.reveal-enabled`: sem JS os cards nascem visíveis, em vez de
+   ficarem presos em opacity 0 esperando um observador que nunca roda. */
+.reveal-enabled .look-card {
+  opacity: 0;
+  transform: translateY(22px);
   transition: opacity var(--reveal-dur) var(--ease-suave),
-    transform var(--reveal-dur) var(--ease-suave),
-    box-shadow 420ms var(--ease-suave);
+    transform var(--reveal-dur) var(--ease-suave);
   transition-delay: var(--rd, 0ms);
 }
+.reveal-enabled .look-card.em-vista {
+  opacity: 1;
+  transform: none;
+}
+/* Na vitrine escalonada os cards não entram em fila: o atraso segue a
+   diagonal da composição, não a ordem do DOM. */
 .grade-tendencias .look-card:nth-child(1) { --rd: 0ms; }
-.grade-tendencias .look-card:nth-child(2) { --rd: 80ms; }
-.grade-tendencias .look-card:nth-child(3) { --rd: 160ms; }
-.grade-tendencias .look-card:nth-child(4) { --rd: 240ms; }
-.grade-tendencias .look-card:nth-child(5) { --rd: 320ms; }
-.grade-tendencias .look-card:nth-child(6) { --rd: 400ms; }
-.grade-tendencias .look-card:nth-child(n + 7) { --rd: 480ms; }
+.grade-tendencias .look-card:nth-child(2) { --rd: 160ms; }
+.grade-tendencias .look-card:nth-child(3) { --rd: 80ms; }
+.grade-tendencias .look-card:nth-child(4) { --rd: 220ms; }
+.grade-tendencias .look-card:nth-child(5) { --rd: 120ms; }
+.grade-tendencias .look-card:nth-child(6) { --rd: 260ms; }
+.grade-tendencias .look-card:nth-child(n + 7) { --rd: 300ms; }
 
-/* Elevação suave ao passar o mouse no card */
-.look-card:hover {
+/* Zoom lento na foto e crossfade entre a base e o segundo ângulo.
+   O hover do look folheia a peça: a foto alternativa não troca seca, ela
+   cruza enquanto a base recua. */
+.look-card-imagem img {
+  transition: transform 1100ms var(--ease-suave), opacity 620ms var(--ease-suave);
+}
+.look-card--duplo .imagem-hover {
+  transform: scale(1.04);
+}
+.look-card--duplo:hover .imagem-hover {
+  transform: scale(1);
+}
+
+/* A etiqueta de arara se firma quando o card recebe o cursor */
+.look-tag {
+  transition: transform var(--transicao), box-shadow var(--transicao);
+}
+.look-card:hover .look-tag {
+  transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
-.look-card-imagem img {
-  transition: transform 900ms var(--ease-suave), opacity 500ms var(--ease-suave);
+
+/* =========================================================================
+   5. QUADRO — parallax guiado por scroll, sem JS
+   `animation-timeline: view()` é CSS puro: o navegador roda na thread de
+   composição, sem ouvinte de scroll e sem custo de layout. Onde não houver
+   suporte, simplesmente não acontece — a foto fica parada e correta.
+   Fora do LCP de propósito: a capa não recebe parallax.
+   ========================================================================= */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .sobre-foto img {
+      animation: parallax-quadro linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+    @keyframes parallax-quadro {
+      from {
+        transform: scale(1.08) translateY(-1.8%);
+      }
+      to {
+        transform: scale(1.08) translateY(1.8%);
+      }
+    }
+  }
 }
 
-/* Crossfade mais suave entre foto base e hover */
-.look-card .imagem-hover {
-  transition: opacity 600ms var(--ease-suave);
-}
-.look-card .imagem-base {
-  transition: opacity 600ms var(--ease-suave);
-}
-
-/* ---------- Header reativo ao scroll ---------- */
+/* =========================================================================
+   6. CABEÇALHO
+   ========================================================================= */
 .site-header {
-  transition: box-shadow 400ms var(--ease-suave),
-    background-color 400ms var(--ease-suave),
-    padding 300ms var(--ease-suave);
-}
-.site-header.scrolled {
-  box-shadow: var(--shadow-sm);
-  background: rgba(248, 242, 231, 0.98);
-}
-.site-header.scrolled .header-inner {
-  padding-top: 10px;
-  padding-bottom: 10px;
+  transition: background-color 420ms var(--ease-suave),
+    border-color 420ms var(--ease-suave);
 }
 .header-inner {
-  transition: padding 320ms var(--ease-suave);
+  transition: padding 360ms var(--ease-suave);
+}
+.site-header.scrolled .header-inner {
+  padding-top: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
 }
 
-/* ---------- Botão flutuante do WhatsApp: entrada + brilho sutil ---------- */
+/* =========================================================================
+   7. BOTÃO FLUTUANTE
+   ========================================================================= */
 @keyframes fab-in {
   from {
     opacity: 0;
-    transform: translateY(14px) scale(0.85);
+    transform: translateY(16px) scale(0.9);
   }
   to {
     opacity: 1;
@@ -156,49 +346,57 @@
   }
 }
 .whatsapp-popup {
-  animation: fab-in 520ms var(--ease-suave) 900ms both;
-}
-
-/* ---------- Underline animado dos links de navegação (refino) ---------- */
-.nav-principal ul a::after {
-  transition: transform 420ms var(--ease-suave);
-}
-
-/* ---------- Botões: micro-interação mais macia ---------- */
-.btn {
-  transition: transform 380ms var(--ease-suave), background 320ms var(--ease-suave),
-    color 320ms var(--ease-suave), border-color 320ms var(--ease-suave),
-    box-shadow 320ms var(--ease-suave);
-}
-.btn-primario:hover {
-  box-shadow: var(--shadow-md);
-}
-
-/* ---------- Marcas: aparição suave ---------- */
-img.marca {
-  transition: filter 500ms var(--ease-suave), transform 500ms var(--ease-suave);
-}
-img.marca:hover {
-  transform: scale(1.04);
+  animation: fab-in 560ms var(--ease-suave) 1400ms both;
 }
 
 /* =========================================================================
-   Acessibilidade — desativa movimento para quem prefere menos animação
+   8. MARCAS
+   ========================================================================= */
+img.marca {
+  transition: filter 520ms var(--ease-suave), opacity 520ms var(--ease-suave);
+}
+
+/* =========================================================================
+   9. Acessibilidade — sem movimento para quem pediu menos movimento
+   Tudo estático e legível: nenhum estado oculto sobrevive aqui.
    ========================================================================= */
 @media (prefers-reduced-motion: reduce) {
   .reveal-enabled .reveal,
   .reveal-enabled .reveal--left,
   .reveal-enabled .reveal--right,
-  .reveal-enabled .reveal--scale {
+  .reveal-enabled .reveal--scale,
+  .reveal-enabled .reveal--cortina,
+  .reveal-enabled .reveal--cortina img {
     opacity: 1 !important;
     transform: none !important;
+    clip-path: none !important;
     transition: none !important;
   }
-  .hero-texto > *,
-  .hero-imagem img,
+  .hero-conteudo > *,
+  .hero-manchete .hero-linha > span,
+  .hero-midia img,
+  .hero-dobra,
+  .hero .folio,
   .whatsapp-popup {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+  .reveal-enabled .look-card {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .reveal-enabled .folio-fio,
+  .reveal-enabled .folio-rotulo,
+  .reveal-enabled .folio-numero {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .sobre-foto img {
+    animation: none !important;
+  }
+  .marcas-imgs {
+    animation: none !important;
   }
 }
