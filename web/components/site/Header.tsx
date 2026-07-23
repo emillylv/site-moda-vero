@@ -43,7 +43,7 @@ export function Header() {
 
   return (
     // O cabeçalho vive sobre a capa escura e continua escuro depois dela.
-    <header className={`site-header tom-escuro${scrolled ? " scrolled" : ""}`}>
+    <header className={`site-header tom-claro${scrolled ? " scrolled" : ""}`}>
       <div className="header-inner">
         <a href="#topo" className="logo" onClick={() => setAberto(false)}>
           <span className="logo-nome">Verônica Chaves</span>

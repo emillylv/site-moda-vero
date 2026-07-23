@@ -39,7 +39,7 @@ export function Trends({
 
   return (
     <section
-      className="section secao-tendencias tom-escuro ladrilhado"
+      className="section secao-tendencias tom-claro"
       id="section-tendencias"
     >
       <div className="prancha">

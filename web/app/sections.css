@@ -93,7 +93,7 @@
   border-bottom: 1px solid transparent;
 }
 .site-header.scrolled {
-  background: rgba(23, 17, 13, 0.92);
+  background: rgba(255, 255, 255, 0.9);
   border-bottom-color: var(--color-line);
   backdrop-filter: saturate(1.3) blur(10px);
 }
@@ -229,24 +229,25 @@
 }
 
 /* Véu em duas camadas: um degradê de baixo para o tipo e um lateral suave.
-   A foto é ensolarada, então o escurecimento precisa ser firme embaixo. */
+   Agora é um lavado claro — a foto ensolarada continua visível e a tinta
+   espresso do texto lê contra o branco embaixo e à esquerda. */
 .hero-veu {
   position: absolute;
   inset: 0;
   background: linear-gradient(
       to top,
-      var(--color-espresso) 0%,
-      rgba(23, 17, 13, 0.88) 22%,
-      rgba(23, 17, 13, 0.4) 48%,
-      rgba(23, 17, 13, 0.12) 72%,
-      rgba(23, 17, 13, 0.45) 100%
+      var(--color-areia) 0%,
+      rgba(255, 255, 255, 0.9) 22%,
+      rgba(255, 255, 255, 0.5) 48%,
+      rgba(255, 255, 255, 0.15) 72%,
+      rgba(255, 255, 255, 0.5) 100%
     ),
     /* Firma a coluna do tipo à esquerda e solta a modelo à direita. */
     linear-gradient(
       to right,
-      rgba(23, 17, 13, 0.82) 0%,
-      rgba(23, 17, 13, 0.45) 32%,
-      rgba(23, 17, 13, 0.08) 60%,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(255, 255, 255, 0.55) 32%,
+      rgba(255, 255, 255, 0.12) 60%,
       transparent 78%
     );
 }
@@ -300,7 +301,7 @@
 .hero-linha--fecho {
   font-style: italic;
   font-weight: 400;
-  color: var(--color-ouro);
+  color: var(--color-bronze);
 }
 
 .hero-sub {
@@ -451,9 +452,10 @@
 }
 
 /* =========================================================================
-   TENDÊNCIAS — a vitrine escalonada
-   Grade editorial de 12 colunas: larguras e alturas diferentes, com recuos
-   verticais. Um lookbook impresso nunca alinha seis fotos iguais.
+   TENDÊNCIAS — a vitrine em grade
+   Grade alinhada: as peças ficam enfileiradas em colunas iguais, como uma
+   arara fotografada de frente. Três por linha no desktop, duas no tablet,
+   uma no celular.
    ========================================================================= */
 .subtitulo-colecao {
   font-family: var(--font-serif-display);
@@ -466,7 +468,7 @@
 .grade-tendencias {
   width: 100%;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--spacing-2xl);
 }
 
@@ -586,41 +588,13 @@
   border: 1px solid rgba(23, 17, 13, 0.4);
 }
 
-/* A vitrine escalonada só existe onde há largura para ela ler como prancha.
-   Abaixo disso vira coluna única com recuo alternado (ver responsivo). */
+/* A partir do tablet largo a grade abre em três colunas iguais e todas as
+   peças ficam enfileiradas, sem recuos nem tamanhos diferentes. */
 @media (min-width: 901px) {
   .grade-tendencias {
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     column-gap: var(--spacing-2xl);
-    row-gap: clamp(var(--spacing-2xl), 4vw, var(--spacing-5xl));
-  }
-  /* Só recuos positivos: nada se sobrepõe, nada sai da grade, nada some. */
-  .grade-tendencias .look-card:nth-child(1) {
-    grid-area: 1 / 1 / auto / span 5;
-  }
-  .grade-tendencias .look-card:nth-child(2) {
-    grid-area: 1 / 8 / auto / span 4;
-    margin-top: clamp(40px, 6vw, 104px);
-  }
-  .grade-tendencias .look-card:nth-child(3) {
-    grid-area: 2 / 2 / auto / span 4;
-  }
-  .grade-tendencias .look-card:nth-child(4) {
-    grid-area: 2 / 7 / auto / span 5;
-    margin-top: clamp(32px, 5vw, 88px);
-  }
-  .grade-tendencias .look-card:nth-child(5) {
-    grid-area: 3 / 1 / auto / span 4;
-  }
-  .grade-tendencias .look-card:nth-child(6) {
-    grid-area: 3 / 6 / auto / span 4;
-    margin-top: clamp(28px, 4vw, 72px);
-  }
-  /* Do sétimo em diante (o catálogo é editável pelo /admin) a grade volta a
-     ser regular de três — melhor previsível do que quebrado. */
-  .grade-tendencias .look-card:nth-child(n + 7) {
-    grid-column: span 4;
-    margin-top: 0;
+    row-gap: clamp(var(--spacing-3xl), 4vw, var(--spacing-5xl));
   }
 }
 
@@ -925,7 +899,7 @@ img.marca:hover {
 }
 .secao-contato h2 em {
   font-style: italic;
-  color: var(--color-ouro);
+  color: var(--color-bronze);
 }
 .contato-nota {
   color: var(--color-text-secondary);
@@ -1099,17 +1073,10 @@ img.marca:hover {
     padding-bottom: 0;
   }
 
-  /* A vitrine vira coluna única com recuo alternado: o ritmo editorial
-     sobrevive sem scroll lateral e nenhum look fica escondido. */
+  /* No tablet a grade fica em duas colunas iguais, sempre enfileirada. */
   .grade-tendencias {
-    grid-template-columns: 1fr;
-    row-gap: var(--spacing-4xl);
-  }
-  .grade-tendencias .look-card:nth-child(odd) {
-    margin-right: clamp(0px, 9vw, 72px);
-  }
-  .grade-tendencias .look-card:nth-child(even) {
-    margin-left: clamp(0px, 9vw, 72px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-xl);
   }
 
   .passos {
@@ -1174,7 +1141,8 @@ img.marca:hover {
     align-items: flex-start;
     justify-content: center;
     gap: var(--spacing-3xl);
-    background: var(--color-espresso);
+    background: var(--color-areia);
+    border-left: 1px solid var(--color-line);
     padding: var(--spacing-3xl) var(--spacing-2xl);
     transform: translateX(100%);
     transition: transform var(--transicao);
@@ -1219,10 +1187,9 @@ img.marca:hover {
 }
 
 @media (max-width: 520px) {
-  .grade-tendencias .look-card:nth-child(odd),
-  .grade-tendencias .look-card:nth-child(even) {
-    margin-left: 0;
-    margin-right: 0;
+  /* No celular estreito uma peça por linha, ainda alinhada à grade. */
+  .grade-tendencias {
+    grid-template-columns: 1fr;
   }
 
   /* O CTA grande não cabe em 350px com o padding do desktop: em vez de

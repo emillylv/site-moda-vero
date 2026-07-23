@@ -12,7 +12,7 @@ const PROVAS = [
 export function Hero({ colecao }: { colecao?: string }) {
   return (
     <>
-      <section className="hero tom-escuro" id="topo">
+      <section className="hero tom-claro" id="topo">
         <div className="hero-midia">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -92,7 +92,7 @@ export function Hero({ colecao }: { colecao?: string }) {
         </div>
       </section>
 
-      <div className="faixa-prova tom-escuro">
+      <div className="faixa-prova tom-claro-fundo">
         <div className="faixa-prova-inner">
           {PROVAS.map((prova) => (
             <div className="faixa-prova-item" key={prova.rotulo}>

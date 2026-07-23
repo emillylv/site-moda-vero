@@ -4,7 +4,7 @@ import { Folio } from "./Folio";
 export function Contact({ numeroPrancha }: { numeroPrancha: string }) {
   return (
     <section
-      className="section secao-contato tom-escuro ladrilhado"
+      className="section secao-contato tom-claro-fundo"
       id="contato"
     >
       <div className="prancha">

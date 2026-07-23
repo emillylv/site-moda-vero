@@ -8,14 +8,16 @@
    ========================================================================= */
 
 :root {
-  /* ---------- Cores (marca) — extraídas da fotografia da coleção ---------- */
-  --color-espresso: #17110d; /* malha chocolate e sombras — o fundo capa */
-  --color-espresso-alto: #221a14; /* superfície elevada sobre a capa */
-  --color-areia: #ede5d6; /* o linho das peças */
-  --color-areia-fundo: #dfd6c4; /* prancha ensolarada, tom mais fechado */
-  --color-areia-clara: #f7f3ea; /* quase branco — fundo das marcas */
-  --color-ouro: #c9962f; /* as joias — ação sobre o escuro */
-  --color-bronze: #7a5a16; /* ouro fechado — ação sobre o claro */
+  /* ---------- Cores (marca) — extraídas da fotografia da coleção ----------
+     Direção clara: o branco é a base. A tinta espresso vira só o texto e as
+     joias douradas seguem como cor de ação. */
+  --color-espresso: #2a211a; /* tinta quente — texto e detalhes sobre o branco */
+  --color-espresso-alto: #f3ede2; /* superfície levemente destacada do branco */
+  --color-areia: #ffffff; /* o branco base do site */
+  --color-areia-fundo: #f6f1e8; /* prancha ensolarada, tom quente mais suave */
+  --color-areia-clara: #faf6ee; /* areia clara — fundo das marcas */
+  --color-ouro: #c9962f; /* as joias — ação dourada */
+  --color-bronze: #9a742a; /* ouro fechado — ação sobre o claro */
   --color-piscina: #8fb3ae; /* o mar ao fundo das fotos — apoio */
 
   /* Nomes antigos preservados: o painel /admin e ds.css consomem estes.
@@ -37,7 +39,7 @@
   --color-text-light: var(--color-areia);
 
   --color-ground: var(--color-areia);
-  --color-surface: #f5efe4;
+  --color-surface: #faf6ee;
 
   --color-bg-primary: var(--color-areia);
   --color-bg-secondary: var(--color-areia-fundo);
