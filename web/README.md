@@ -49,7 +49,7 @@ staging caso a mídia não possa ficar acessível antes de entrar na coleção.
 - leitura streaming com teto antes do parse JSON;
 - rate limit com IP somente quando o proxy é explicitamente confiável,
   expiração e cardinalidade limitada (use WAF/Redis compartilhado ao escalar);
-- imagens limitadas a 5 MiB/24 MP, decodificadas e reencodadas para WebP sem
+- imagens limitadas a 20 MiB/50 MP, decodificadas e reencodadas para WebP sem
   EXIF, GPS ou XMP, com nomes aleatórios;
 - CSP com nonce, HSTS em produção e respostas administrativas `no-store`;
 - nenhum segredo usa prefixo `NEXT_PUBLIC_`.

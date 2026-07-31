@@ -10,9 +10,13 @@ import { lerJsonLimitado, requisicaoAdminValida } from "@/lib/server/requestSecu
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MAX_IMAGEM_BYTES = 5 * 1024 * 1024;
-const MAX_CORPO_BYTES = 7_100_000;
-const MAX_PIXELS = 24_000_000;
+// A imagem chega em base64 dentro do JSON, o que infla o corpo em 1/3: os três
+// limites abaixo são derivados um do outro e precisam subir juntos.
+// 20 MiB = 20.971.520 bytes -> 27.962.028 chars em base64.
+const MAX_IMAGEM_BYTES = 20 * 1024 * 1024;
+const MAX_BASE64_CHARS = 28_000_000;
+const MAX_CORPO_BYTES = 28_400_000;
+const MAX_PIXELS = 50_000_000;
 
 function resposta(mensagem: string, status: number) {
   return NextResponse.json(
@@ -34,7 +38,7 @@ export async function POST(req: Request) {
   const lido = await lerJsonLimitado<{ conteudo?: unknown }>(req, MAX_CORPO_BYTES);
   if (!lido.ok) return resposta(lido.mensagem, lido.status);
   const conteudo = lido.valor?.conteudo;
-  if (typeof conteudo !== "string" || conteudo.length === 0 || conteudo.length > 7_000_000) {
+  if (typeof conteudo !== "string" || conteudo.length === 0 || conteudo.length > MAX_BASE64_CHARS) {
     return resposta("Imagem inválida.", 400);
   }
   if (conteudo.length % 4 !== 0 || !/^[A-Za-z0-9+/]+={0,2}$/.test(conteudo)) {
@@ -43,7 +47,7 @@ export async function POST(req: Request) {
 
   const original = Buffer.from(conteudo, "base64");
   if (original.length === 0 || original.length > MAX_IMAGEM_BYTES) {
-    return resposta("Imagem grande demais (máximo de 5 MB).", 413);
+    return resposta("Imagem grande demais (máximo de 20 MiB).", 413);
   }
   if (!detectarFormatoImagem(original)) return resposta("Formato de imagem não aceito.", 415);
 

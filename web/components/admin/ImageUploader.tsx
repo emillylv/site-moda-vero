@@ -5,7 +5,8 @@ import { Button } from "@/components/ds/Button";
 import { Field, Input } from "@/components/ds/Input";
 import { caminhoImagemValido } from "@/lib/validation";
 
-const MAX_IMAGEM_BYTES = 5 * 1024 * 1024;
+// Precisa acompanhar MAX_IMAGEM_BYTES de app/api/admin/images/route.ts.
+const MAX_IMAGEM_BYTES = 20 * 1024 * 1024;
 const TIPOS_PERMITIDOS = new Set([
   "image/jpeg",
   "image/png",
@@ -102,7 +103,7 @@ export function ImageUploader({
       return;
     }
     if (arquivo.size === 0 || arquivo.size > MAX_IMAGEM_BYTES) {
-      setStatus({ texto: "A imagem deve ter no máximo 5 MiB.", tipo: "erro" });
+      setStatus({ texto: "A imagem deve ter no máximo 20 MiB.", tipo: "erro" });
       setArquivoPendente(null);
       input.value = "";
       return;
