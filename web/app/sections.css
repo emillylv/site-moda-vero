@@ -785,12 +785,11 @@ img.marca:hover {
   .sobre-conteudo {
     grid-template-columns: minmax(0, 0.6fr) minmax(0, 1fr);
   }
-  /* A sangria à esquerda: a foto sai da coluna e passa por baixo do folio.
-     Ela para aí — antes ia até a borda da tela, mas um oval encostado no
-     corte fica cego de um lado e a borda some no canto. `calc` sobre a folga
-     real do container: nada de valor chutado que quebra em telas largas. */
+  /* Sem sangria: o oval fica inteiro na coluna de conteúdo. O retrato
+     retangular podia invadir a margem viva porque o folio caía sobre uma
+     área de foto lisa; o oval encosta a borda bronze justamente no número e
+     no rótulo vertical da prancha, e aí vira colisão. A margem é do folio. */
   .sobre-foto {
-    margin-left: calc(-1 * (var(--folio-largura) + var(--folio-gap)));
     /* Teto de largura para o medalhão não crescer com a tela: a 470px o
        oval fecha em ~590px de altura, a mesma presença do retrato antigo, e
        ainda dentro da resolução nativa do arquivo (720px). */
