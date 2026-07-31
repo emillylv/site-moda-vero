@@ -758,6 +758,10 @@ img.marca:hover {
 }
 .sobre-foto img {
   width: 100%;
+  /* Sem `height: auto` o atributo height="720" do HTML conta como altura
+     definida e o `aspect-ratio` abaixo é ignorado por spec — era por isso que
+     a foto ficava travada em 720px de altura e só crescia em largura. */
+  height: auto;
   aspect-ratio: 4 / 5;
   object-fit: cover;
   object-position: center 20%;
@@ -780,9 +784,15 @@ img.marca:hover {
       -1 *
         (var(--margem-prancha) + var(--folio-largura) + var(--folio-gap))
     );
+    /* Teto na largura do arquivo original (720px). A sangria é uma margem
+       negativa fixa, então o limite encolhe a foto pela direita e ela segue
+       encostada na borda esquerda — sem isso ela acompanhava a tela (959px
+       num monitor de 1920, 1279px num de 2560), dominando a prancha e sendo
+       ampliada acima da resolução nativa. */
+    max-width: 720px;
   }
   .sobre-foto img {
-    aspect-ratio: 5 / 6;
+    aspect-ratio: 4 / 3;
   }
 }
 
