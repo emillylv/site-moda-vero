@@ -755,10 +755,14 @@ img.marca:hover {
   position: relative;
 }
 /* O quadro do retrato: é ele que recebe a cortina e é ele que segura o
-   parallax — a foto se move DENTRO do próprio quadro, sem vazar. */
+   parallax — a foto se move DENTRO do próprio quadro, sem vazar.
+   O oval mora aqui (e não na img) para que o recorte valha também para o
+   deslocamento do parallax. */
 .sobre-foto-quadro {
   display: block;
   overflow: hidden;
+  border-radius: 50%;
+  border: 1px solid var(--color-accent);
 }
 .sobre-foto img {
   width: 100%;
@@ -768,35 +772,29 @@ img.marca:hover {
   height: auto;
   aspect-ratio: 4 / 5;
   object-fit: cover;
-  object-position: center 20%;
-}
-/* Moldura deslocada — o enquadramento de uma prancha impressa. */
-.sobre-foto::after {
-  content: "";
-  position: absolute;
-  inset: 18px -18px -18px 18px;
-  border: 1px solid var(--color-accent);
-  z-index: -1;
+  /* O arquivo é quadrado e a caixa é 4/5: o corte cai só nas laterais e é
+     simétrico. O valor vertical fica de reserva — só passa a valer se a foto
+     for trocada por um arquivo mais alto que a caixa. */
+  object-position: center 25%;
 }
 
 @media (min-width: 901px) {
-  /* A sangria à esquerda: a foto sai da coluna, passa por baixo do folio e
-     encosta na borda da tela. `calc` sobre a folga real do container — nada
-     de valor chutado que quebra em telas largas. */
-  .sobre-foto {
-    margin-left: calc(
-      -1 *
-        (var(--margem-prancha) + var(--folio-largura) + var(--folio-gap))
-    );
-    /* Teto na largura do arquivo original (720px). A sangria é uma margem
-       negativa fixa, então o limite encolhe a foto pela direita e ela segue
-       encostada na borda esquerda — sem isso ela acompanhava a tela (959px
-       num monitor de 1920, 1279px num de 2560), dominando a prancha e sendo
-       ampliada acima da resolução nativa. */
-    max-width: 720px;
+  /* Com o oval a coluna da foto encolhe: o medalhão não sustenta a largura
+     que o retrato retangular sustentava sem virar uma altura absurda (4/5 de
+     640px são 800px de foto). Menos coluna aqui, mais respiro para o texto. */
+  .sobre-conteudo {
+    grid-template-columns: minmax(0, 0.6fr) minmax(0, 1fr);
   }
-  .sobre-foto img {
-    aspect-ratio: 4 / 3;
+  /* A sangria à esquerda: a foto sai da coluna e passa por baixo do folio.
+     Ela para aí — antes ia até a borda da tela, mas um oval encostado no
+     corte fica cego de um lado e a borda some no canto. `calc` sobre a folga
+     real do container: nada de valor chutado que quebra em telas largas. */
+  .sobre-foto {
+    margin-left: calc(-1 * (var(--folio-largura) + var(--folio-gap)));
+    /* Teto de largura para o medalhão não crescer com a tela: a 470px o
+       oval fecha em ~590px de altura, a mesma presença do retrato antigo, e
+       ainda dentro da resolução nativa do arquivo (720px). */
+    max-width: clamp(340px, 30vw, 470px);
   }
 }
 
@@ -1181,11 +1179,10 @@ img.marca:hover {
     gap: var(--spacing-3xl);
   }
   .sobre-foto {
-    max-width: 380px;
-  }
-  /* A moldura deslocada não cabe sem vazar na largura estreita. */
-  .sobre-foto::after {
-    display: none;
+    max-width: 340px;
+    /* Sem a segunda coluna o oval fica solto à esquerda; centrado ele vira
+       o medalhão de abertura do bloco. */
+    margin-inline: auto;
   }
   .faixa-prova-inner {
     grid-template-columns: 1fr;
