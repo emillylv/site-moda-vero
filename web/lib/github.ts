@@ -1,5 +1,7 @@
 import "server-only";
 
+import { imagemGeradaPeloPainel, imagensDoCatalogo } from "@/lib/validation";
+
 /* =========================================================================
    Integração com a API do GitHub (Contents API) — portado de server.js.
    Faz commit direto de arquivos no repositório configurado, sem disco.
@@ -72,11 +74,11 @@ function cabecalhosGitHub(cfg: GithubConfig): HeadersInit {
   };
 }
 
-/** Retorna o SHA atual do arquivo, ou null se ainda não existe (404). */
-export async function lerShaArquivoGitHub(
+/** Lê um arquivo do repositório. Retorna null se ainda não existe (404). */
+export async function lerArquivoGitHub(
   cfg: GithubConfig,
   caminhoArquivo: string
-): Promise<string | null> {
+): Promise<{ sha: string; conteudo: string } | null> {
   const resposta = await fetch(
     `${urlConteudoGitHub(cfg, caminhoArquivo)}?ref=${encodeURIComponent(cfg.branch)}`,
     {
@@ -90,11 +92,40 @@ export async function lerShaArquivoGitHub(
   if (!resposta.ok) {
     throw new Error(`Não foi possível ler o arquivo atual no GitHub (${resposta.status}).`);
   }
-  const atual = (await resposta.json()) as { sha?: unknown };
+  const atual = (await resposta.json()) as { sha?: unknown; content?: unknown };
   if (!atual || typeof atual.sha !== "string") {
     throw new Error("Resposta inválida ao ler o arquivo atual no GitHub.");
   }
-  return atual.sha;
+  const conteudo =
+    typeof atual.content === "string"
+      ? Buffer.from(atual.content, "base64").toString("utf-8")
+      : "";
+  return { sha: atual.sha, conteudo };
+}
+
+/** Retorna o SHA atual do arquivo, ou null se ainda não existe (404). */
+export async function lerShaArquivoGitHub(
+  cfg: GithubConfig,
+  caminhoArquivo: string
+): Promise<string | null> {
+  return (await lerArquivoGitHub(cfg, caminhoArquivo))?.sha ?? null;
+}
+
+export async function apagarArquivoGitHub(
+  cfg: GithubConfig,
+  opts: { caminhoArquivo: string; sha: string; mensagem: string }
+): Promise<void> {
+  const resposta = await fetch(urlConteudoGitHub(cfg, opts.caminhoArquivo), {
+    method: "DELETE",
+    headers: cabecalhosGitHub(cfg),
+    signal: AbortSignal.timeout(TEMPO_LIMITE_GITHUB_MS),
+    cache: "no-store",
+    redirect: "error",
+    body: JSON.stringify({ message: opts.mensagem, sha: opts.sha, branch: cfg.branch }),
+  });
+  if (!resposta.ok) {
+    throw new Error(`Falha ao apagar arquivo no GitHub (${resposta.status}).`);
+  }
 }
 
 export async function commitArquivoGitHub(
@@ -121,19 +152,72 @@ export async function commitArquivoGitHub(
   }
 }
 
-/** Grava o conteúdo do catálogo JSON no caminho configurado. */
+function analisarCatalogo(texto: string): unknown {
+  try {
+    return JSON.parse(texto);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Apaga as imagens que o catálogo anterior usava e o novo não usa mais.
+ * Só remove arquivos que o próprio painel gerou (ver `imagemGeradaPeloPainel`)
+ * e nunca deixa uma falha aqui derrubar a publicação: o catálogo já foi
+ * gravado, e uma imagem órfã a mais é inofensiva perto de perder o commit.
+ */
+async function apagarImagensOrfas(
+  cfg: GithubConfig,
+  conteudoAnterior: string,
+  conteudoNovo: string
+): Promise<string[]> {
+  const anterior = analisarCatalogo(conteudoAnterior);
+  const novo = analisarCatalogo(conteudoNovo);
+  // Sem conseguir ler os dois lados não há diferença confiável: não apaga nada.
+  if (!anterior || !novo) return [];
+
+  const emUso = imagensDoCatalogo(novo);
+  const orfas = [...imagensDoCatalogo(anterior)].filter(
+    (caminho) => !emUso.has(caminho) && imagemGeradaPeloPainel(caminho)
+  );
+
+  const removidas: string[] = [];
+  for (const caminho of orfas) {
+    const arquivo = `${cfg.imagesDir}/${caminho.slice("/imgs/".length)}`;
+    try {
+      const atual = await lerArquivoGitHub(cfg, arquivo);
+      if (!atual) continue;
+      await apagarArquivoGitHub(cfg, {
+        caminhoArquivo: arquivo,
+        sha: atual.sha,
+        mensagem: `Remove imagem ${caminho.slice("/imgs/".length)} sem uso no catálogo`,
+      });
+      removidas.push(caminho);
+    } catch (erro) {
+      console.error(
+        "Não foi possível remover imagem órfã:",
+        erro instanceof Error ? erro.message : "erro"
+      );
+    }
+  }
+  return removidas;
+}
+
+/** Grava o catálogo JSON e recolhe as imagens que ele deixou de usar. */
 export async function publicarCatalogoNoGitHub(
   cfg: GithubConfig,
   conteudo: string
-): Promise<void> {
-  const sha = await lerShaArquivoGitHub(cfg, cfg.dataPath);
-  if (!sha) {
+): Promise<{ removidas: string[] }> {
+  const atual = await lerArquivoGitHub(cfg, cfg.dataPath);
+  if (!atual) {
     throw new Error("Arquivo de catálogo não encontrado no GitHub.");
   }
   await commitArquivoGitHub(cfg, {
     caminhoArquivo: cfg.dataPath,
     conteudoBase64: Buffer.from(conteudo, "utf-8").toString("base64"),
     mensagem: "Atualiza catálogo de tendências via painel admin",
-    sha,
+    sha: atual.sha,
   });
+
+  return { removidas: await apagarImagensOrfas(cfg, atual.conteudo, conteudo) };
 }

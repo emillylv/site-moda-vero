@@ -18,6 +18,8 @@ const ACCEPT_IMAGENS = [...TIPOS_PERMITIDOS].join(",");
 
 interface ImageUploaderProps {
   id: string;
+  /** O mesmo componente serve à foto principal e à de hover; o rótulo diz qual. */
+  rotulo: string;
   csrfToken: string;
   onPreviewChange: (url: string) => void;
   onUploaded: (caminho: string) => void;
@@ -58,6 +60,7 @@ async function lerResposta(resposta: Response): Promise<RespostaUpload> {
 
 export function ImageUploader({
   id,
+  rotulo,
   csrfToken,
   onPreviewChange,
   onUploaded,
@@ -185,7 +188,7 @@ export function ImageUploader({
   }
 
   return (
-    <Field label="Enviar nova foto principal" htmlFor={id}>
+    <Field label={rotulo} htmlFor={id}>
       <Input
         id={id}
         type="file"

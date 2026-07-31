@@ -127,6 +127,26 @@
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
 }
+/* Duas prévias empilhadas: a foto da vitrine e a que a substitui no hover. */
+.look-editor-thumbs {
+  display: grid;
+  gap: var(--spacing-md);
+  align-content: start;
+}
+.look-editor-thumb-bloco {
+  display: grid;
+  gap: var(--spacing-xs);
+  justify-items: center;
+}
+.look-editor-thumb-rotulo {
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: 1.2;
+}
+
 .look-editor-thumb {
   position: relative;
   width: 92px;
@@ -156,6 +176,45 @@
 }
 .campo-largo {
   grid-column: 1 / -1;
+}
+
+/* Cada foto do look num bloco só seu: caminho + envio no mesmo lugar, para não
+   restar dúvida sobre qual campo alimenta qual imagem. */
+.look-editor-foto {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--spacing-sm);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin: 0;
+  min-width: 0;
+}
+.look-editor-foto > legend {
+  padding: 0 var(--spacing-xs);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+.look-editor-foto-ajuda {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+/* O seletor de arquivo nativo tem largura intrínseca grande e vazava do bloco. */
+.look-editor-foto input[type="file"] {
+  width: 100%;
+  min-width: 0;
+  font-size: 0.78rem;
+}
+
+@media (min-width: 900px) {
+  /* Lado a lado onde há largura: as duas fotos do look leem como um par. */
+  .look-editor-foto {
+    grid-column: auto;
+  }
 }
 .look-editor-acoes {
   grid-column: 1 / -1;

@@ -26,7 +26,8 @@ function criarCsp(nonce: string, permitirMedicao: boolean): string {
     `img-src 'self' data: blob:${medicao}`,
     "font-src 'self' data:",
     `connect-src 'self'${medicao}${desenvolvimento ? " ws: wss:" : ""}`,
-    "media-src 'none'",
+    // O filme da capa é servido pelo próprio domínio; 'none' o bloquearia.
+    "media-src 'self'",
     "object-src 'none'",
     "frame-src 'none'",
     "base-uri 'none'",
@@ -59,7 +60,7 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     {
-      source: "/((?!api|_next/static|_next/image|favicon.png|imgs/).*)",
+      source: "/((?!api|_next/static|_next/image|favicon.png|imgs/|videos/).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

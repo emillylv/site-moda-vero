@@ -149,7 +149,21 @@ export function AdminEditor({ csrfToken }: AdminEditorProps) {
         return;
       }
 
-      setStatus({ texto: "Publicado! O site vai atualizar em alguns minutos.", tipo: "ok" });
+      const corpo: unknown = await resposta.json().catch(() => null);
+      const removidas =
+        corpo && typeof corpo === "object" && typeof (corpo as { removidas?: unknown }).removidas === "number"
+          ? (corpo as { removidas: number }).removidas
+          : 0;
+      const faxina =
+        removidas > 0
+          ? ` ${removidas} foto${removidas > 1 ? "s" : ""} sem uso foi${
+              removidas > 1 ? "ram" : ""
+            } apagada${removidas > 1 ? "s" : ""}.`
+          : "";
+      setStatus({
+        texto: `Publicado! O site vai atualizar em alguns minutos.${faxina}`,
+        tipo: "ok",
+      });
     } catch {
       setStatus({
         texto: "Erro de conexão. Verifique sua internet e tente novamente.",

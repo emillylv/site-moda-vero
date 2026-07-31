@@ -28,6 +28,34 @@ export function caminhoImagemValido(caminho: unknown): caminho is string {
   return typeof caminho === "string" && RE_CAMINHO_IMAGEM.test(caminho);
 }
 
+/* A rota de upload nomeia cada arquivo com crypto.randomUUID() + ".webp".
+   Só esses são candidatos à faxina: assim capa.jpg, veronica.jpg, insta.png e
+   as fotos numeradas legadas nunca entram na lista de exclusão, por mais que
+   deixem de ser referenciadas pelo catálogo. */
+const RE_IMAGEM_DO_PAINEL =
+  /^\/imgs\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.webp$/i;
+
+export function imagemGeradaPeloPainel(caminho: unknown): caminho is string {
+  return typeof caminho === "string" && RE_IMAGEM_DO_PAINEL.test(caminho);
+}
+
+/** Todos os caminhos de imagem que um catálogo referencia (principal e hover). */
+export function imagensDoCatalogo(conteudo: unknown): Set<string> {
+  const encontradas = new Set<string>();
+  if (!conteudo || typeof conteudo !== "object") return encontradas;
+  const itens = (conteudo as { itens?: unknown }).itens;
+  if (!Array.isArray(itens)) return encontradas;
+
+  for (const item of itens) {
+    if (!item || typeof item !== "object") continue;
+    const look = item as Record<string, unknown>;
+    for (const campo of ["imagem", "imagemHover"] as const) {
+      if (caminhoImagemValido(look[campo])) encontradas.add(look[campo]);
+    }
+  }
+  return encontradas;
+}
+
 /** Retorna null se o payload for válido, ou uma mensagem de erro. */
 export function validarPayload(corpo: unknown): string | null {
   if (!corpo || typeof corpo !== "object" || Array.isArray(corpo)) {

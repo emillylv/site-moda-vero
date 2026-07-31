@@ -77,6 +77,29 @@ export function ConsentAnalytics() {
       const link = (evento.target as Element | null)?.closest("a");
       if (!link || !window.gtag) return;
       const href = link.getAttribute("href") || "";
+
+      // Os cards da vitrine também levam ao WhatsApp, então sem isto todos eles
+      // cairiam no mesmo whatsapp_click e não daria para saber qual look vende.
+      // `select_item` é o evento que o GA4 já entende: o item_name aparece nos
+      // relatórios de itens sem precisar cadastrar dimensão personalizada.
+      const tituloLook = link.getAttribute("data-look-titulo");
+      if (tituloLook) {
+        const posicao = Number(link.getAttribute("data-look-posicao")) || 0;
+        const etiqueta = link.getAttribute("data-look-etiqueta") || "";
+        window.gtag("event", "select_item", {
+          item_list_id: "tendencias",
+          item_list_name: "Tendências",
+          items: [
+            {
+              item_id: `look-${String(posicao).padStart(2, "0")}`,
+              item_name: tituloLook,
+              index: posicao,
+              ...(etiqueta ? { item_category: etiqueta } : {}),
+            },
+          ],
+        });
+      }
+
       const nome = href.includes("whatsapp") || href.includes("wa.me")
         ? "whatsapp_click"
         : href.includes("instagram.com")

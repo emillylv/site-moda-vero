@@ -74,6 +74,12 @@ export function Trends({
                   )}
                   target="_blank"
                   rel="noopener"
+                  /* O clique é medido em ConsentAnalytics: estes atributos são o
+                     que diferencia "alguém clicou na vitrine" de "clicaram no
+                     look Alfaiataria leve, o terceiro da grade". */
+                  data-look-titulo={titulo}
+                  data-look-posicao={indice + 1}
+                  data-look-etiqueta={item.etiqueta || ""}
                 >
                   <div className="look-card-imagem">
                     {item.etiqueta ? (

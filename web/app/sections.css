@@ -221,11 +221,15 @@
   inset: 0;
   z-index: 0;
 }
-.hero-midia img {
+/* O filme é vertical (720x1280) e o quadro da capa é mais largo que alto no
+   desktop: `cover` recorta pelas pontas e o centro mantém a modelo em campo,
+   diferente do enquadramento 62%/26% que a fotografia horizontal pedia. */
+.hero-midia img,
+.hero-midia video {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 62% 26%;
+  object-position: center;
 }
 
 /* Véu em duas camadas: um degradê de baixo para o tipo e um lateral suave.

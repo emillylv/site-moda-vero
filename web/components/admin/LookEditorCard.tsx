@@ -30,19 +30,42 @@ export function LookEditorCard({
   onMove,
   onRemove,
 }: LookEditorCardProps) {
-  const [previewLocal, setPreviewLocal] = useState<string | null>(null);
-  const imagemSegura = caminhoImagemValido(item.imagem) ? item.imagem : null;
-  const imagemPreview = previewLocal || imagemSegura;
+  // Uma prévia por foto: a do arquivo recém-escolhido (blob local) tem
+  // precedência sobre o caminho já publicado, para o envio ser visível na hora.
+  const [previewPrincipal, setPreviewPrincipal] = useState<string | null>(null);
+  const [previewHover, setPreviewHover] = useState<string | null>(null);
+  const nomeLook = item.titulo || `look ${indice + 1}`;
+  const imagemPreview =
+    previewPrincipal || (caminhoImagemValido(item.imagem) ? item.imagem : null);
+  const hoverPreview =
+    previewHover || (caminhoImagemValido(item.imagemHover) ? item.imagemHover : null);
 
   return (
     <div className="look-editor-card">
-      <div className="look-editor-thumb">
-        {imagemPreview ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={imagemPreview} alt={`Prévia de ${item.titulo || `look ${indice + 1}`}`} />
-        ) : (
-          <span>Prévia da foto principal</span>
-        )}
+      <div className="look-editor-thumbs">
+        <div className="look-editor-thumb-bloco">
+          <div className="look-editor-thumb">
+            {imagemPreview ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={imagemPreview} alt={`Prévia da foto principal de ${nomeLook}`} />
+            ) : (
+              <span>Sem foto</span>
+            )}
+          </div>
+          <span className="look-editor-thumb-rotulo">Principal</span>
+        </div>
+
+        <div className="look-editor-thumb-bloco">
+          <div className="look-editor-thumb">
+            {hoverPreview ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={hoverPreview} alt={`Prévia da foto de hover de ${nomeLook}`} />
+            ) : (
+              <span>Sem foto</span>
+            )}
+          </div>
+          <span className="look-editor-thumb-rotulo">Ao passar o mouse</span>
+        </div>
       </div>
 
       <div className="look-editor-campos">
@@ -58,34 +81,52 @@ export function LookEditorCard({
           </Field>
         </div>
 
-        <Field label="Foto principal" htmlFor={`imagem-${item.id}`}>
-          <Input
-            id={`imagem-${item.id}`}
-            value={item.imagem}
-            maxLength={300}
-            placeholder="/imgs/0001.jpg"
-            onChange={(evento) => onChange(item.id, "imagem", evento.target.value)}
-          />
-        </Field>
-
-        <Field label="Foto ao passar o mouse" htmlFor={`hover-${item.id}`}>
-          <Input
-            id={`hover-${item.id}`}
-            value={item.imagemHover}
-            maxLength={300}
-            placeholder="/imgs/0001-alt.jpg"
-            onChange={(evento) => onChange(item.id, "imagemHover", evento.target.value)}
-          />
-        </Field>
-
-        <div className="campo-largo">
+        <fieldset className="look-editor-foto">
+          <legend>Foto principal</legend>
+          <p className="look-editor-foto-ajuda">
+            É a que aparece na vitrine. Envie um arquivo ou informe um caminho em /imgs.
+          </p>
+          <Field label="Caminho da imagem" htmlFor={`imagem-${item.id}`}>
+            <Input
+              id={`imagem-${item.id}`}
+              value={item.imagem}
+              maxLength={300}
+              placeholder="/imgs/0001.jpg"
+              onChange={(evento) => onChange(item.id, "imagem", evento.target.value)}
+            />
+          </Field>
           <ImageUploader
             id={`upload-${item.id}`}
+            rotulo="Enviar nova foto principal"
             csrfToken={csrfToken}
-            onPreviewChange={setPreviewLocal}
+            onPreviewChange={setPreviewPrincipal}
             onUploaded={(caminho) => onChange(item.id, "imagem", caminho)}
           />
-        </div>
+        </fieldset>
+
+        <fieldset className="look-editor-foto">
+          <legend>Foto ao passar o mouse</legend>
+          <p className="look-editor-foto-ajuda">
+            Opcional: troca com a principal quando o visitante passa o mouse. Deixe em
+            branco para o look ficar com uma foto só.
+          </p>
+          <Field label="Caminho da imagem" htmlFor={`hover-${item.id}`}>
+            <Input
+              id={`hover-${item.id}`}
+              value={item.imagemHover}
+              maxLength={300}
+              placeholder="/imgs/0001-alt.jpg"
+              onChange={(evento) => onChange(item.id, "imagemHover", evento.target.value)}
+            />
+          </Field>
+          <ImageUploader
+            id={`upload-hover-${item.id}`}
+            rotulo="Enviar nova foto de hover"
+            csrfToken={csrfToken}
+            onPreviewChange={setPreviewHover}
+            onUploaded={(caminho) => onChange(item.id, "imagemHover", caminho)}
+          />
+        </fieldset>
 
         <div className="campo-largo">
           <Field label="Etiqueta" htmlFor={`etiqueta-${item.id}`}>

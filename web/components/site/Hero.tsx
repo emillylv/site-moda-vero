@@ -1,5 +1,6 @@
 import { LINKS } from "@/lib/links";
 import { Folio } from "./Folio";
+import { HeroVideo } from "./HeroVideo";
 
 // Razões para continuar rolando, logo abaixo da capa. Todas verificáveis no
 // próprio site: envio gratuito, atendimento híbrido e as 9 marcas da arara.
@@ -14,15 +15,7 @@ export function Hero({ colecao }: { colecao?: string }) {
     <>
       <section className="hero tom-claro" id="topo">
         <div className="hero-midia">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/imgs/capa.jpg"
-            alt="Duas modelos à beira da piscina com looks da coleção de verão"
-            width={1500}
-            height={750}
-            fetchPriority="high"
-            decoding="async"
-          />
+          <HeroVideo poster="/imgs/capa-video.jpg" />
           <div className="hero-veu" aria-hidden="true" />
         </div>
 

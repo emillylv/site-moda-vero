@@ -41,9 +41,12 @@ export async function POST(req: Request) {
   }
 
   try {
-    await publicarCatalogoNoGitHub(config, montarConteudoArquivo(lido.valor as CatalogPayload));
+    const { removidas } = await publicarCatalogoNoGitHub(
+      config,
+      montarConteudoArquivo(lido.valor as CatalogPayload)
+    );
     return NextResponse.json(
-      { status: "ok" },
+      { status: "ok", removidas: removidas.length },
       { headers: { "Cache-Control": "private, no-store", Vary: "Cookie" } }
     );
   } catch (erro) {
