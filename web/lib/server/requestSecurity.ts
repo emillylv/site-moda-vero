@@ -22,10 +22,23 @@ export function urlConfiavel(caminho: string): URL {
 
 export function origemMutacaoValida(req: Request): boolean {
   const esperada = obterOrigemSite();
+  if (!esperada) return false;
+
   const origem = req.headers.get("origin");
   const fetchSite = req.headers.get("sec-fetch-site");
-  if (!esperada || !origem || origem !== esperada.origin) return false;
-  if (fetchSite && fetchSite !== "same-origin") return false;
+
+  // Nem todo POST de formulário carrega um Origin utilizável: dependendo da
+  // Referrer-Policy da página o navegador manda a origem opaca "null", e
+  // versões antigas de Safari/Firefox simplesmente omitem o header. Nesses
+  // casos exigimos Sec-Fetch-Site: same-origin, que é preenchido pelo próprio
+  // navegador e não pode ser forjado por conteúdo da web — um iframe sandbox
+  // de origem opaca, por exemplo, recebe "cross-site".
+  if (origem && origem !== "null") {
+    if (origem !== esperada.origin) return false;
+    if (fetchSite && fetchSite !== "same-origin") return false;
+  } else if (fetchSite !== "same-origin") {
+    return false;
+  }
 
   const usaProxy = process.env.TRUST_PROXY === "1";
   const hostRecebido = (usaProxy ? req.headers.get("x-forwarded-host") : req.headers.get("host"))

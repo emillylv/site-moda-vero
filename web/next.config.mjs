@@ -5,7 +5,11 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), geolocation=(), microphone=(), payment=(), usb=(), browsing-topics=()",
   },
-  { key: "Referrer-Policy", value: "no-referrer" },
+  // "no-referrer" faz o navegador enviar Origin: null nos POST de formulário
+  // (Fetch Standard, "append a request Origin header"), o que reprovava o
+  // login em origemMutacaoValida. "same-origin" continua sem vazar referrer
+  // para fora do site e preserva o Origin nas requisições internas.
+  { key: "Referrer-Policy", value: "same-origin" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
