@@ -938,6 +938,85 @@ img.marca:hover {
 }
 
 /* =========================================================================
+   AGENDAMENTO — a prancha de um gesto só
+   Mesma gramática das outras pranchas (folio na margem, título contra a
+   esquerda), mas sem menu: aqui a página só faz uma pergunta.
+   ========================================================================= */
+.agendamento-topo {
+  border-bottom: 1px solid var(--color-line);
+}
+.agendamento-voltar {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-utilitario);
+  color: var(--color-text-muted);
+  transition: color var(--transicao);
+}
+.agendamento-voltar:hover {
+  color: var(--color-text-primary);
+}
+
+/* Segura o rodapé no pé da tela quando o formulário é curto demais. */
+.secao-agendamento {
+  min-height: 78vh;
+}
+.secao-agendamento .cabecalho-secao {
+  grid-template-columns: 1fr;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-2xl);
+}
+/* A manchete da capa é maior que esta: lá ela é a imagem, aqui é a legenda
+   de um formulário. */
+.secao-agendamento h1 {
+  font-size: var(--font-size-display-lg);
+  max-width: 14ch;
+}
+.secao-agendamento h1 em {
+  font-style: italic;
+  color: var(--color-bronze);
+}
+.agendamento-nota {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-body-lg);
+  font-weight: 300;
+  max-width: 42ch;
+}
+
+.agendamento-form {
+  margin-top: var(--spacing-3xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  max-width: 32rem;
+}
+/* O campo acompanha o resto do impresso: canto quase reto e corpo de leitura,
+   grande o bastante para não dar zoom no iOS. */
+.agendamento-form .ds-input {
+  font-size: var(--font-size-body-lg);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-sm);
+}
+.agendamento-envio {
+  align-self: flex-start;
+  margin-top: var(--spacing-sm);
+}
+.agendamento-aviso {
+  font-size: var(--font-size-caption-lg);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  max-width: 40ch;
+}
+.agendamento-local {
+  margin-top: var(--spacing-3xl);
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid var(--color-line);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-utilitario);
+  color: var(--color-text-muted);
+}
+
+/* =========================================================================
    RODAPÉ
    ========================================================================= */
 .site-footer {
@@ -1216,6 +1295,10 @@ img.marca:hover {
   .contato-acoes {
     flex-direction: column;
     align-items: stretch;
+  }
+  /* Mesma razão do CTA do fecho: no celular estreito o botão ocupa a linha. */
+  .agendamento-envio {
+    align-self: stretch;
   }
   .whatsapp-popup span {
     display: none;

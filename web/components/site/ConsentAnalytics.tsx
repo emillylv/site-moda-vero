@@ -1,18 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  GOOGLE_ADS_CONVERSION_LABEL,
+  GOOGLE_ADS_ID,
+  GOOGLE_ANALYTICS_ID,
+} from "@/lib/analytics";
 
-const GOOGLE_ANALYTICS_ID = "G-F7VFWPM4LR";
-const GOOGLE_ADS_ID = "AW-11184553318";
-const GOOGLE_ADS_CONVERSION_LABEL = "4jyACIONoNQcEOb6mtUp";
 const CHAVE_CONSENTIMENTO = "consentimento_cookies";
-
-declare global {
-  interface Window {
-    dataLayer?: IArguments[];
-    gtag?: (...args: unknown[]) => void;
-  }
-}
 
 // O gtag.js só reconhece comandos empurrados no dataLayer como objeto
 // `arguments`. Um Array comum entra na fila e é descartado em silêncio, sem
