@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { LINKS } from "@/lib/links";
 import { Folio } from "./Folio";
 import { HeroVideo } from "./HeroVideo";
@@ -56,17 +57,12 @@ export function Hero({ colecao }: { colecao?: string }) {
               dedo, tendências atualizadas e envio gratuito para todo o Brasil.
             </p>
             <div className="hero-acoes">
-              <a
-                href={LINKS.whatsappAgendar}
-                className="btn btn-primario"
-                target="_blank"
-                rel="noopener"
-              >
+              <Link href="/agendamento" className="btn btn-primario">
                 Agendar consultoria
                 <span className="btn-seta" aria-hidden="true">
                   →
                 </span>
-              </a>
+              </Link>
               <a href="#section-tendencias" className="btn btn-secundario">
                 Ver a coleção
               </a>

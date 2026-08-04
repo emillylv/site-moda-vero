@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { LINKS } from "@/lib/links";
 import { Folio } from "./Folio";
 
@@ -24,17 +25,12 @@ export function Contact({ numeroPrancha }: { numeroPrancha: string }) {
             gratuito para todo o Brasil.
           </p>
           <div className="contato-acoes reveal">
-            <a
-              href={LINKS.whatsappAgendar}
-              className="btn btn-primario btn-grande"
-              target="_blank"
-              rel="noopener"
-            >
-              Agendar pelo WhatsApp
+            <Link href="/agendamento" className="btn btn-primario btn-grande">
+              Agendar consultoria
               <span className="btn-seta" aria-hidden="true">
                 →
               </span>
-            </a>
+            </Link>
             <a
               href={LINKS.instagram}
               className="btn btn-secundario btn-grande"

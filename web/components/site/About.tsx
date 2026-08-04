@@ -1,4 +1,4 @@
-import { LINKS } from "@/lib/links";
+import Link from "next/link";
 import { Folio } from "./Folio";
 
 export function About({ numeroPrancha }: { numeroPrancha: string }) {
@@ -43,17 +43,12 @@ export function About({ numeroPrancha }: { numeroPrancha: string }) {
                 exclusiva de peças de alta qualidade, escolhidas especialmente
                 para você, com envio gratuito para todo o Brasil.
               </p>
-              <a
-                href={LINKS.whatsappAgendar}
-                className="btn btn-primario"
-                target="_blank"
-                rel="noopener"
-              >
+              <Link href="/agendamento" className="btn btn-primario">
                 Falar com a Verônica
                 <span className="btn-seta" aria-hidden="true">
                   →
                 </span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

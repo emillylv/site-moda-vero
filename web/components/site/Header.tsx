@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LINKS } from "@/lib/links";
+import Link from "next/link";
 
 const NAV = [
   { href: "#section-tendencias", rotulo: "Coleção" },
@@ -72,15 +72,13 @@ export function Header() {
               </li>
             ))}
           </ul>
-          <a
-            href={LINKS.whatsappAgendar}
+          <Link
+            href="/agendamento"
             className="btn btn-primario nav-cta"
-            target="_blank"
-            rel="noopener"
             onClick={() => setAberto(false)}
           >
             Agendar
-          </a>
+          </Link>
         </nav>
       </div>
     </header>
