@@ -2,40 +2,40 @@
   "colecao": "Verão 2026",
   "itens": [
     {
-      "imagem": "/imgs/2cb33260-1710-440a-b0aa-b851594051de.webp",
-      "imagemHover": "/imgs/230d39c0-2933-4fa2-9741-637237169dfb.webp",
-      "titulo": "The ANNF Club - Anne Fernandes",
+      "imagem": "/imgs/f978905b-8b07-4907-8fec-aed8d5604827.webp",
+      "imagemHover": "/imgs/d5b40705-cba0-438c-afd9-8347fe6c5026.webp",
+      "titulo": "Anne Fernandes",
       "etiqueta": "Novo"
     },
     {
       "imagem": "/imgs/113f513f-41b3-4adb-b38c-e7d6914ff426.webp",
       "imagemHover": "/imgs/62522975-fbbe-45c1-b0d8-0227adadd5b0.webp",
-      "titulo": "Verão 2027 - Apoá",
-      "etiqueta": "Tendência"
+      "titulo": "Apoá",
+      "etiqueta": ""
     },
     {
       "imagem": "/imgs/e9edf3ae-bfe1-4863-96ba-6f5abd2493bc.webp",
       "imagemHover": "/imgs/9433a14c-6880-46d6-9304-7b2d76dd6b08.webp",
-      "titulo": "Reflexo do Verão - Romaria",
-      "etiqueta": "Mais pedido"
+      "titulo": "Romaria",
+      "etiqueta": ""
     },
     {
       "imagem": "/imgs/3934932a-fc6c-4416-b07e-7aa1aecd1682.webp",
       "imagemHover": "/imgs/f66a2438-ce5d-4c40-8b3c-abf6f659e6ef.webp",
-      "titulo": "Rivieira Verão 2027 - Vidi Vici",
-      "etiqueta": "Tendência"
+      "titulo": "Vidi Vici",
+      "etiqueta": ""
     },
     {
       "imagem": "/imgs/619d16e7-cf62-42aa-89f0-d4c3a76891c1.webp",
       "imagemHover": "/imgs/371d7435-1c13-48e2-b4b6-130d90172e0a.webp",
-      "titulo": "Modern Nomad - Tufi Duek",
-      "etiqueta": "Novo"
+      "titulo": "Tufi Duek",
+      "etiqueta": ""
     },
     {
       "imagem": "/imgs/c24e3c51-edc8-4ade-b484-aaac2668924d.webp",
       "imagemHover": "/imgs/91d98d17-6f58-4b4f-802b-2a8786a882d5.webp",
-      "titulo": "Mirage 2 - Bittar",
-      "etiqueta": "Edição limitada"
+      "titulo": "Bittar",
+      "etiqueta": ""
     }
   ]
 }
