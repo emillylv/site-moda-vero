@@ -8,6 +8,12 @@
       "etiqueta": "Novo"
     },
     {
+      "imagem": "/imgs/a131b402-d164-4b11-84d1-de317608c85a.webp",
+      "imagemHover": "/imgs/b35f7ee6-008f-443f-a08c-724ffb56005d.webp",
+      "titulo": "LN",
+      "etiqueta": "Novo"
+    },
+    {
       "imagem": "/imgs/113f513f-41b3-4adb-b38c-e7d6914ff426.webp",
       "imagemHover": "/imgs/62522975-fbbe-45c1-b0d8-0227adadd5b0.webp",
       "titulo": "Apoá",
@@ -30,12 +36,6 @@
       "imagemHover": "/imgs/371d7435-1c13-48e2-b4b6-130d90172e0a.webp",
       "titulo": "Tufi Duek",
       "etiqueta": ""
-    },
-    {
-      "imagem": "/imgs/a131b402-d164-4b11-84d1-de317608c85a.webp",
-      "imagemHover": "/imgs/b35f7ee6-008f-443f-a08c-724ffb56005d.webp",
-      "titulo": "LN",
-      "etiqueta": "Novo"
     }
   ]
 }
