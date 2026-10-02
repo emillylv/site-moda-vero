@@ -32,6 +32,12 @@
       "etiqueta": "Tendência"
     },
     {
+      "imagem": "/imgs/ec3f72c5-8371-4ccf-8fcf-c25339ead2ad.webp",
+      "imagemHover": "/imgs/77715db2-ffd7-47d6-8276-131c32d4cc7e.webp",
+      "titulo": "Denise Valadares",
+      "etiqueta": "Tendência"
+    },
+    {
       "imagem": "/imgs/e9edf3ae-bfe1-4863-96ba-6f5abd2493bc.webp",
       "imagemHover": "/imgs/9433a14c-6880-46d6-9304-7b2d76dd6b08.webp",
       "titulo": "Romaria",
@@ -48,12 +54,6 @@
       "imagemHover": "/imgs/371d7435-1c13-48e2-b4b6-130d90172e0a.webp",
       "titulo": "Tufi Duek",
       "etiqueta": "Edição limitada"
-    },
-    {
-      "imagem": "/imgs/ec3f72c5-8371-4ccf-8fcf-c25339ead2ad.webp",
-      "imagemHover": "/imgs/77715db2-ffd7-47d6-8276-131c32d4cc7e.webp",
-      "titulo": "Denise Valadares",
-      "etiqueta": "Tendência"
     }
   ]
 }
