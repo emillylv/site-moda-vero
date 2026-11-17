@@ -28,6 +28,7 @@ interface ImageUploaderProps {
 interface RespostaUpload {
   status?: unknown;
   caminho?: unknown;
+  mensagem?: unknown;
 }
 
 function lerArquivoComoBase64(arquivo: File): Promise<string> {
@@ -147,16 +148,20 @@ export function ImageUploader({
         body: JSON.stringify({ conteudo }),
         signal: controlador.signal,
       });
+      const corpo = await lerResposta(resposta);
       if (!resposta.ok) {
+        // As mensagens do servidor dizem o motivo (tamanho, formato, limite de
+        // tentativas...); a genérica fica só para quando não vier nenhuma.
         const mensagem =
           resposta.status === 401 || resposta.status === 403
             ? "Sua sessão expirou. Recarregue a página e entre novamente."
-            : "Não foi possível enviar a imagem.";
+            : typeof corpo.mensagem === "string" && corpo.mensagem
+              ? corpo.mensagem
+              : "Não foi possível enviar a imagem.";
         setStatus({ texto: mensagem, tipo: "erro" });
         return;
       }
 
-      const corpo = await lerResposta(resposta);
 
       if (
         corpo.status !== "ok" ||
@@ -174,7 +179,7 @@ export function ImageUploader({
       setArquivoPendente(null);
       if (inputArquivo.current) inputArquivo.current.value = "";
       setStatus({
-        texto: "Imagem enviada ao repositório. Publique a coleção para exibi-la no site.",
+        texto: "Imagem enviada. Publique a coleção para exibi-la no site.",
         tipo: "ok",
       });
     } catch (erro) {

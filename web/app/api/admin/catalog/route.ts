@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { validarPayload, montarConteudoArquivo, type CatalogPayload } from "@/lib/validation";
-import { lerConfigGitHub, publicarCatalogoNoGitHub } from "@/lib/github";
+import { publicarCatalogo } from "@/lib/armazenamento";
+import { diretorioDados } from "@/lib/server/dados";
 import { obterSessaoAdmin } from "@/lib/server/adminAuth";
 import { chaveCliente, verificarLimite } from "@/lib/server/rateLimit";
 import { lerJsonLimitado, requisicaoAdminValida } from "@/lib/server/requestSecurity";
@@ -34,15 +35,15 @@ export async function POST(req: Request) {
   const erroValidacao = validarPayload(lido.valor);
   if (erroValidacao) return resposta(erroValidacao, 400);
 
-  const config = lerConfigGitHub();
-  if ("erro" in config) {
-    console.error("Configuração de publicação inválida.");
-    return resposta("Publicação indisponível.", 503);
+  const dir = diretorioDados();
+  if (!dir) {
+    console.error("Nenhum volume configurado (RAILWAY_VOLUME_MOUNT_PATH ou DATA_DIR).");
+    return resposta("Armazenamento da coleção indisponível. Avise o suporte do site.", 503);
   }
 
   try {
-    const { removidas } = await publicarCatalogoNoGitHub(
-      config,
+    const { removidas } = await publicarCatalogo(
+      dir,
       montarConteudoArquivo(lido.valor as CatalogPayload)
     );
     return NextResponse.json(
@@ -50,7 +51,7 @@ export async function POST(req: Request) {
       { headers: { "Cache-Control": "private, no-store", Vary: "Cookie" } }
     );
   } catch (erro) {
-    console.error("Falha na publicação do catálogo:", erro instanceof Error ? erro.message : "erro");
-    return resposta("Falha ao publicar o catálogo.", 502);
+    console.error("Falha ao salvar o catálogo no volume:", erro instanceof Error ? erro.message : "erro");
+    return resposta("Falha ao publicar o catálogo.", 500);
   }
 }

@@ -11,7 +11,7 @@ import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { ScrollReveal } from "@/components/site/ScrollReveal";
 import { ConsentAnalytics } from "@/components/site/ConsentAnalytics";
 import { DadosEstruturados } from "@/components/site/DadosEstruturados";
-import { colecaoTendencias } from "@/lib/trends";
+import { lerColecao } from "@/lib/server/dados";
 import { depoimentos } from "@/lib/depoimentos";
 
 /* Numeração das pranchas do lookbook. A de depoimentos só existe quando há
@@ -29,7 +29,8 @@ function numerarPranchas(temDepoimentos: boolean) {
   };
 }
 
-export default function Home() {
+export default async function Home() {
+  const colecao = await lerColecao();
   const temDepoimentos = depoimentos.length > 0;
   const pranchas = numerarPranchas(temDepoimentos);
 
@@ -42,9 +43,9 @@ export default function Home() {
       <Header />
 
       <main id="conteudo-principal">
-        <Hero colecao={colecaoTendencias.colecao} />
+        <Hero colecao={colecao.colecao} />
         <Trends
-          colecao={colecaoTendencias}
+          colecao={colecao}
           numeroPrancha={pranchas.tendencias}
         />
         <HowItWorks numeroPrancha={pranchas.comoFunciona} />

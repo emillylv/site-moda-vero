@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Field, Input, Select } from "@/components/ds/Input";
 import { caminhoImagemValido } from "@/lib/validation";
-import { ETIQUETAS_VALIDAS } from "@/lib/trends";
+import { ETIQUETAS_VALIDAS } from "@/lib/catalog";
 import { ImageUploader } from "./ImageUploader";
 import type { CampoLookEdicao, LookEdicao } from "./types";
 

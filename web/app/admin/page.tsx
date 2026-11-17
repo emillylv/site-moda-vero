@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ButtonLink } from "@/components/ds/Button";
 import { AdminEditor } from "@/components/admin/AdminEditor";
 import { obterSessaoAdmin } from "@/lib/server/adminAuth";
+import { lerColecao } from "@/lib/server/dados";
 
 export const metadata: Metadata = {
   title: "Painel da Coleção · Verônica Chaves",
@@ -15,6 +16,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   const sessao = await obterSessaoAdmin();
   if (!sessao) redirect("/admin/login");
+  const colecao = await lerColecao();
 
   return (
     <div className="admin-body">
@@ -37,7 +39,7 @@ export default async function AdminPage() {
       </header>
 
       <main className="admin-main">
-        <AdminEditor csrfToken={sessao.csrf} />
+        <AdminEditor csrfToken={sessao.csrf} colecaoInicial={colecao} />
       </main>
 
       <footer className="admin-footer">

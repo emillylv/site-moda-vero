@@ -23,21 +23,37 @@ app/admin/login/                 login server-side
 app/admin/page.tsx               painel protegido
 app/api/admin/session/           criação/remoção da sessão
 app/api/admin/catalog/           publicação do catálogo
-app/api/admin/images/            processamento/publicação de imagens
+app/api/admin/images/            processamento/gravação de imagens
+app/imgs/[arquivo]/              serve as fotos gravadas no volume
 components/admin/                editor React dividido por responsabilidade
-data/trends.json                 catálogo público, sem código executável
+data/trends.json                 catálogo inicial (usado até a 1ª publicação)
+lib/armazenamento.ts             leitura/gravação de catálogo e fotos no volume
 lib/server/                      sessão, CSRF, limites e código server-only
 lib/security/                    primitivas testáveis de senha e sessão
-public/imgs/                     mídia pública
+public/imgs/                     mídia fixa do site (versionada)
 middleware.ts                    CSP estrita com nonce por requisição
 ```
 
-O painel atualiza `data/trends.json` e imagens via GitHub Contents API. Use um
-token fine-grained restrito ao repositório e à permissão `Contents: read/write`.
-O token nunca é enviado ao navegador. A foto só é transmitida após uma segunda
-confirmação no painel; depois disso ela é gravada imediatamente no repositório,
-antes da publicação do catálogo. Prefira repositório privado ou branch de
-staging caso a mídia não possa ficar acessível antes de entrar na coleção.
+## Onde o painel grava
+
+O painel grava o catálogo e as fotos num **volume persistente** (no Railway,
+um Volume anexado ao serviço; o caminho vem de `RAILWAY_VOLUME_MOUNT_PATH`,
+ou de `DATA_DIR` em outros ambientes):
+
+```text
+<volume>/trends.json        catálogo publicado — o site lê daqui a cada acesso
+<volume>/imgs/<uuid>.webp   fotos enviadas — servidas em /imgs/<uuid>.webp
+```
+
+Publicar não gera commit nem redeploy: o site muda na hora. Enquanto o volume
+não tiver `trends.json`, o site exibe `data/trends.json` do repositório; depois
+da primeira publicação, **editar `data/trends.json` no git não muda mais o
+site** — use o painel. As fotos de `public/imgs` continuam servidas normalmente
+e nunca são apagadas pelo painel.
+
+Em produção sem volume o painel recusa gravar (503) em vez de escrever no disco
+efêmero do container. O volume não entra no git: faça backup pelo Railway
+(aba *Backups* do volume) e, para o catálogo, pelo botão “Baixar trends.json”.
 
 ## Segurança
 
@@ -67,5 +83,4 @@ npm audit
 Configure o deploy preferencialmente com Node 24.18+ LTS (ou 22.23.1+ na linha
 22); instalações em runtimes mais antigos são recusadas por `engine-strict`.
 Use `SITE_URL` com a origem HTTPS exata. Se a versão antiga do Next chegou a
-ficar online, reimplante primeiro e depois rotacione todos os segredos e o
-token do GitHub.
+ficar online, reimplante primeiro e depois rotacione todos os segredos.

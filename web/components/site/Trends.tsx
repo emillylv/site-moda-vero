@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { Colecao } from "@/lib/trends";
+import type { Colecao } from "@/lib/catalog";
 import { LINKS, whatsapp } from "@/lib/links";
 import { Folio } from "./Folio";
 

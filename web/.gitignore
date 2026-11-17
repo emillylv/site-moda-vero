@@ -7,3 +7,6 @@
 *.tsbuildinfo
 next-env.d.ts
 .DS_Store
+
+# Volume local do painel em desenvolvimento (catálogo e fotos enviadas)
+/.dados

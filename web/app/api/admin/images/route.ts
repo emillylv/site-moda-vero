@@ -2,7 +2,8 @@ import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import sharp from "sharp";
 import { detectarFormatoImagem } from "@/lib/validation";
-import { commitArquivoGitHub, lerConfigGitHub } from "@/lib/github";
+import { salvarImagem } from "@/lib/armazenamento";
+import { diretorioDados } from "@/lib/server/dados";
 import { obterSessaoAdmin } from "@/lib/server/adminAuth";
 import { chaveCliente, verificarLimite } from "@/lib/server/rateLimit";
 import { lerJsonLimitado, requisicaoAdminValida } from "@/lib/server/requestSecurity";
@@ -34,6 +35,12 @@ export async function POST(req: Request) {
 
   const limite = verificarLimite(`images:${sessao.auth}:${chaveCliente(req)}`, 30, 15 * 60 * 1000);
   if (!limite.permitido) return resposta("Muitas tentativas. Tente novamente mais tarde.", 429);
+
+  const dir = diretorioDados();
+  if (!dir) {
+    console.error("Nenhum volume configurado (RAILWAY_VOLUME_MOUNT_PATH ou DATA_DIR).");
+    return resposta("Armazenamento de fotos indisponível. Avise o suporte do site.", 503);
+  }
 
   const lido = await lerJsonLimitado<{ conteudo?: unknown }>(req, MAX_CORPO_BYTES);
   if (!lido.ok) return resposta(lido.mensagem, lido.status);
@@ -79,25 +86,15 @@ export async function POST(req: Request) {
     return resposta("Arquivo de imagem inválido.", 415);
   }
 
-  const config = lerConfigGitHub();
-  if ("erro" in config) {
-    console.error("Configuração de publicação inválida.");
-    return resposta("Publicação indisponível.", 503);
-  }
-
   const nome = `${crypto.randomUUID()}.webp`;
   try {
-    await commitArquivoGitHub(config, {
-      caminhoArquivo: `${config.imagesDir}/${nome}`,
-      conteudoBase64: imagemPublica.toString("base64"),
-      mensagem: `Adiciona imagem ${nome} via painel admin`,
-    });
+    await salvarImagem(dir, nome, imagemPublica);
     return NextResponse.json(
       { status: "ok", caminho: `/imgs/${nome}` },
       { headers: { "Cache-Control": "private, no-store", Vary: "Cookie" } }
     );
   } catch (erro) {
-    console.error("Falha na publicação de imagem:", erro instanceof Error ? erro.message : "erro");
-    return resposta("Falha ao publicar a imagem.", 502);
+    console.error("Falha ao salvar imagem no volume:", erro instanceof Error ? erro.message : "erro");
+    return resposta("Falha ao salvar a imagem.", 500);
   }
 }

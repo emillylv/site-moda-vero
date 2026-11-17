@@ -26,7 +26,7 @@ export function PublishBar({
       <h2>Publicar a coleção</h2>
       <p>
         Quando a coleção estiver pronta, clique em <strong>“Publicar direto no site”</strong>. O
-        site é atualizado automaticamente em alguns minutos.
+        site é atualizado na hora.
       </p>
 
       <div className="admin-exportar-acoes">

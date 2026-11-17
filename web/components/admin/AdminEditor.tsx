@@ -8,7 +8,7 @@ import {
   montarConteudoArquivo,
   type CatalogPayload,
 } from "@/lib/validation";
-import { colecaoTendencias, ETIQUETAS_VALIDAS } from "@/lib/trends";
+import { ETIQUETAS_VALIDAS, type Colecao } from "@/lib/catalog";
 import { CatalogPreview } from "./CatalogPreview";
 import { LookEditorCard } from "./LookEditorCard";
 import { PublishBar } from "./PublishBar";
@@ -16,10 +16,12 @@ import type { CampoLookEdicao, LookEdicao, StatusAdmin } from "./types";
 
 interface AdminEditorProps {
   csrfToken: string;
+  /** Catálogo publicado no momento, lido no servidor. */
+  colecaoInicial: Colecao;
 }
 
-function itensIniciais(): LookEdicao[] {
-  return (colecaoTendencias.itens || []).map((item, indice) => ({
+function itensIniciais(colecao: Colecao): LookEdicao[] {
+  return (colecao.itens || []).map((item, indice) => ({
     id: indice + 1,
     imagem: item.imagem || "",
     imagemHover: item.imagemHover || "",
@@ -28,13 +30,13 @@ function itensIniciais(): LookEdicao[] {
   }));
 }
 
-export function AdminEditor({ csrfToken }: AdminEditorProps) {
-  const [nome, setNome] = useState(colecaoTendencias.colecao || "");
-  const [itens, setItens] = useState<LookEdicao[]>(itensIniciais);
+export function AdminEditor({ csrfToken, colecaoInicial }: AdminEditorProps) {
+  const [nome, setNome] = useState(colecaoInicial.colecao || "");
+  const [itens, setItens] = useState<LookEdicao[]>(() => itensIniciais(colecaoInicial));
   const [publicando, setPublicando] = useState(false);
   const [status, setStatus] = useState<StatusAdmin>({ texto: "", tipo: "" });
   const [jsonGerado, setJsonGerado] = useState("");
-  const proximoId = useRef(colecaoTendencias.itens.length + 1);
+  const proximoId = useRef(colecaoInicial.itens.length + 1);
 
   function marcarComoAlterado() {
     setJsonGerado("");
@@ -140,16 +142,20 @@ export function AdminEditor({ csrfToken }: AdminEditorProps) {
         },
         body: JSON.stringify(montarPayload()),
       });
+      const corpo: unknown = await resposta.json().catch(() => null);
       if (!resposta.ok) {
+        const doServidor =
+          corpo && typeof corpo === "object" && typeof (corpo as { mensagem?: unknown }).mensagem === "string"
+            ? (corpo as { mensagem: string }).mensagem
+            : "";
         const mensagem =
           resposta.status === 401 || resposta.status === 403
             ? "Sua sessão expirou. Recarregue a página e entre novamente."
-            : "Não foi possível publicar. Tente novamente.";
+            : doServidor || "Não foi possível publicar. Tente novamente.";
         setStatus({ texto: mensagem, tipo: "erro" });
         return;
       }
 
-      const corpo: unknown = await resposta.json().catch(() => null);
       const removidas =
         corpo && typeof corpo === "object" && typeof (corpo as { removidas?: unknown }).removidas === "number"
           ? (corpo as { removidas: number }).removidas
@@ -161,7 +167,7 @@ export function AdminEditor({ csrfToken }: AdminEditorProps) {
             } apagada${removidas > 1 ? "s" : ""}.`
           : "";
       setStatus({
-        texto: `Publicado! O site vai atualizar em alguns minutos.${faxina}`,
+        texto: `Publicado! O site já está atualizado.${faxina}`,
         tipo: "ok",
       });
     } catch {
